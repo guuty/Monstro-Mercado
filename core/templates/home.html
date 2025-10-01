@@ -1,15 +1,32 @@
 {% extends "base.html" %}
 {% load socialaccount %}
-{% block title %}Inicio · Mercadito{% endblock %}
+{% block title %}Inicio · Monstro Mercado{% endblock %}
 {% block content %}
-  <h1>Inicio</h1>
-  {% if not user.is_authenticated %}
-    <p>Ingresá para publicar o comprar.</p>
-    <p>
-      <a href="{% provider_login_url 'google' %}" role="button">Entrar con Google</a>
-      <a href="{% provider_login_url 'github' %}" role="button" class="secondary">Entrar con GitHub</a>
-    </p>
-  {% else %}
-    <p>Ya estás logueado ✅. Próximo paso: crear productos y compras.</p>
-  {% endif %}
+  <div class="container mt-5">
+    <h1>Inicio</h1>
+    
+    {% if user.is_authenticated %}
+      <h2>Información del Usuario</h2>
+      <ul>
+        <li>Hola {{ user.get_full_name|default:user.username }}</li>
+        <li>Bio: {{ user.profile.bio|default:"Sin biografía" }}</li>
+        <li>
+          <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-link nav-link" style="display:inline; padding:0; border:none; background:none;">
+              Salir
+            </button>
+          </form>
+        </li>
+      </ul>
+      <p>Ya estás logueado ✅. Próximo paso: crear productos y compras.</p>
+    {% else %}
+      <p>Ingresá para publicar o comprar.</p>
+      <p>
+        <a href="{% provider_login_url 'google' %}" role="button">Entrar con Google</a>
+        <a href="{% provider_login_url 'github' %}" role="button" class="secondary">Entrar con GitHub</a>
+      </p>
+      <p>O <a href="{% url 'account_login' %}">Entrar</a> con email</p>
+    {% endif %}
+  </div>
 {% endblock %}

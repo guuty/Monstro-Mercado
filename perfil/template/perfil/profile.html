@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil de {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>{{ request.user.username }}</h2>
+  
+  {% if profile.avatar %}
+    <img src="{{ profile.avatar.url }}" alt="Avatar de {{ user.username }}" 
+         class="rounded-circle mb-3" 
+         width="150" height="150" 
+         style="object-fit: cover;">
+  {% else %}
+    <img src="https://ui-avatars.com/api/?name={{ user.username }}&size=150&background=random" 
+         alt="Avatar" 
+         class="rounded-circle mb-3">
+  {% endif %}
+  
+  <p><strong>Biografía:</strong></p>
+  <p>{{ profile.bio|default:"Sin biografía" }}</p>
+  
+  <a href="{% url 'profile_edit' %}" class="btn btn-primary">Editar perfil</a>
+</div>
+{% endblock %}
