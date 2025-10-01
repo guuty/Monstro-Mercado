@@ -1,0 +1,52 @@
+# Python
+*.py[cod]
+*$py.class
+*.so
+__pycache__/
+*.pyc
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+/static
+
+# Entorno virtual
+venv/
+env/
+ENV/
+.venv/
+
+# Variables de entorno
+.env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Migraciones (opcional - algunos prefieren subirlas)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Archivos de pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node modules (si usas frontend)
+node_modules/
+npm-debug.log
+
+# Backup files
+*.bak
+*.backup
