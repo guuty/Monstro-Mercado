@@ -1,9 +1,7 @@
-from django.contrib import admin
-from django.urls import path, include
-
-app_name = "market"
+from django.urls import path
+from .views import product_list , product_create
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    #path("products/", include("market.urls")),
+    path("lista/", product_list, name="product-list"),
+    path("nuevo/", product_create, name="product-create"),
 ]

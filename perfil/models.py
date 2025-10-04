@@ -14,11 +14,10 @@ class Profile(models.Model):
 
 # Crear automáticamente el perfil al crear usuario
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_or_save_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
-
+    else:
+        # Solo guarda si el perfil existe
+        if hasattr(instance, 'profile'):
+            instance.profile.save()

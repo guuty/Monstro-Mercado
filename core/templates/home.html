@@ -1,32 +1,36 @@
 {% extends "base.html" %}
+{% load static %}
 {% load socialaccount %}
-{% block title %}Inicio · Monstro Mercado{% endblock %}
+{% block title %}Inicio • Monstro Mercado{% endblock %}
+
 {% block content %}
-  <div class="container mt-5">
-    <h1>Inicio</h1>
-    
-    {% if user.is_authenticated %}
-      <h2>Información del Usuario</h2>
-      <ul>
-        <li>Hola {{ user.get_full_name|default:user.username }}</li>
-        <li>Bio: {{ user.profile.bio|default:"Sin biografía" }}</li>
-        <li>
-          <form method="post" action="{% url 'account_logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-link nav-link" style="display:inline; padding:0; border:none; background:none;">
-              Salir
-            </button>
-          </form>
-        </li>
-      </ul>
-      <p>Ya estás logueado ✅. Próximo paso: crear productos y compras.</p>
-    {% else %}
-      <p>Ingresá para publicar o comprar.</p>
-      <p>
-        <a href="{% provider_login_url 'google' %}" role="button">Entrar con Google</a>
-        <a href="{% provider_login_url 'github' %}" role="button" class="secondary">Entrar con GitHub</a>
-      </p>
-      <p>O <a href="{% url 'account_login' %}">Entrar</a> con email</p>
-    {% endif %}
-  </div>
+<div class="home-container">
+  <h1>Bienvenido al Monstro Mercado</h1>
+
+  {% if not user.is_authenticated %}
+    <p>Iniciá sesión para comprar, vender o intercambiar productos</p>
+    <div class="social-login">
+      <a href="{% provider_login_url 'google' %}" class="btn-social google">
+        <img src="{% static 'img/google.svg' %}" alt="Google" class="social-logo">
+      </a>
+      <a href="{% provider_login_url 'github' %}" class="btn-social github">
+        <img src="{% static 'img/github.svg' %}" alt="GitHub" class="social-logo">
+      </a>
+    </div>
+  {% else %}
+    <h2>Últimos productos</h2>
+    <div class="card-container">
+      {% for product in products %}
+        <div class="card">
+          <h3>{{ product.title }}</h3>
+          <p>{{ product.description|truncatewords:15 }}</p>
+          <p><strong>${{ product.price }}</strong></p>
+          <a href="/market/Lista/">Ver más</a>
+        </div>
+      {% empty %}
+        <p>No hay productos publicados todavía.</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
 {% endblock %}

@@ -1,18 +1,84 @@
 {% extends "base.html" %}
-{% block title %}Registrarse{% endblock %}
+{% load socialaccount %}
+
+{% block title %}Crear cuenta{% endblock %}
 
 {% block content %}
-<h2>Registrarse</h2>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-body p-4">
+          <h2 class="card-title text-center mb-4">Crear cuenta</h2>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Crear cuenta</button>
-</form>
+          <form method="post">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+              <div class="alert alert-danger">
+                Por favor corregí los errores a continuación.
+              </div>
+            {% endif %}
 
-<p>O registrate con:</p>
-<a href="{% provider_login_url 'google' %}"><img src="/static/google-logo.png" width="30"> Google</a>
-<a href="{% provider_login_url 'github' %}"><img src="/static/github-logo.png" width="30"> GitHub</a>
+            <div class="mb-3">
+              <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <div class="text-danger">{{ form.email.errors }}</div>
+              {% endif %}
+            </div>
 
-<p>¿Ya tenés cuenta? <a href="{% url 'account_login' %}">Entrar</a></p>
+            <div class="mb-3">
+              <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de usuario</label>
+              {{ form.username }}
+              {% if form.username.errors %}
+                <div class="text-danger">{{ form.username.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.password1.id_for_label }}" class="form-label">Contraseña</label>
+              {{ form.password1 }}
+              <small class="form-text text-muted">
+                <ul class="mb-0 mt-1">
+                  <li>Mínimo 8 caracteres</li>
+                  <li>No puede ser solo numérica</li>
+                </ul>
+              </small>
+              {% if form.password1.errors %}
+                <div class="text-danger">{{ form.password1.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar contraseña</label>
+              {{ form.password2 }}
+              {% if form.password2.errors %}
+                <div class="text-danger">{{ form.password2.errors }}</div>
+              {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3">Registrarse</button>
+          </form>
+
+          <div class="text-center mb-3">
+            <p>¿Ya tenés cuenta? <a href="{% url 'account_login' %}">Iniciá sesión</a></p>
+          </div>
+
+          <hr class="my-4">
+
+          <h5 class="text-center mb-3">O registrate con</h5>
+          <div class="social-login">
+            <a href="{% provider_login_url 'google' %}" class="btn-social google" title="Google">
+              <i class="fab fa-google"></i>
+            </a>
+            <a href="{% provider_login_url 'github' %}" class="btn-social github" title="GitHub">
+              <i class="fab fa-github"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
