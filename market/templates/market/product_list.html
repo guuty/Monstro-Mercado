@@ -1,23 +1,77 @@
 {% extends "base.html" %}
-{% block title %}Productos • Monstro Mercado{% endblock %}
+{% load static %}
+
+{% block title %}Market - Productos{% endblock %}
 
 {% block content %}
-<h2>Todos los productos</h2>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Market - Productos a la Venta</h2>
+    {% if user.is_authenticated %}
+      <a href="{% url 'product-create' %}" class="btn btn-primary">Vender Producto</a>
+    {% endif %}
+  </div>
 
-<div class="card-container">
-  {% for product in products %}
-    <div class="card">
-      <h3>{{ product.title }}</h3>
-      <p>{{ product.description }}</p>
-      <p><strong>${{ product.price }}</strong></p>
-      {% if user.is_authenticated %}
-        <button>Comprar / Truequear</button>
-      {% else %}
-        <a href="{% url 'account_login' %}">Inicia sesión para comprar</a>
-      {% endif %}
-    </div>
-  {% empty %}
-    <p>No hay productos disponibles.</p>
-  {% endfor %}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row">
+    {% for product in products %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}" style="height: 250px; object-fit: cover;">
+          {% else %}
+            <img src="https://via.placeholder.com/300x250?text={{ product.title }}" class="card-img-top" alt="Sin imagen">
+          {% endif %}
+          
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ product.title }}</h5>
+            <p class="text-muted small">Marca: {{ product.marca }}</p>
+            <p class="card-text">{{ product.description|truncatewords:15 }}</p>
+            
+            <div class="mt-auto">
+              <p class="h4 text-primary mb-2">${{ product.price }}</p>
+              
+              <p class="mb-2">
+                {% if product.is_available %}
+                  <span class="badge bg-success">Stock: {{ product.stock }}</span>
+                {% else %}
+                  <span class="badge bg-danger">No disponible</span>
+                {% endif %}
+              </p>
+              
+              <p class="text-muted small mb-3">
+                Vendedor: {{ product.seller.username }}<br>
+                Publicado: {{ product.created_at|timesince }} atrás
+              </p>
+
+              {% if user == product.seller %}
+                <div class="btn-group w-100" role="group">
+                  <a href="{% url 'product-edit' product.pk %}" class="btn btn-sm btn-outline-primary">Editar</a>
+                  <a href="{% url 'product-delete' product.pk %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="alert alert-info text-center">
+          <h4>No hay productos disponibles</h4>
+          {% if user.is_authenticated %}
+            <a href="{% url 'product-create' %}" class="btn btn-primary mt-2">Publicar el primero</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}

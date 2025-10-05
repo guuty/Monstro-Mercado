@@ -6,9 +6,11 @@ cryptography==46.0.2
 Django==5.2.7
 django-allauth==65.11.2
 django-environ==0.12.0
+django-widget-tweaks==1.5.0
 djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
 idna==3.10
+pillow==11.3.0
 pycparser==2.23
 PyJWT==2.10.1
 requests==2.32.5

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load socialaccount %}
+{% load widget_tweaks %}
 
 {% block title %}Crear cuenta{% endblock %}
 
@@ -22,7 +23,7 @@
 
             <div class="mb-3">
               <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-              {{ form.email }}
+              {% render_field form.email class="form-control" %}
               {% if form.email.errors %}
                 <div class="text-danger">{{ form.email.errors }}</div>
               {% endif %}
@@ -30,7 +31,7 @@
 
             <div class="mb-3">
               <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de usuario</label>
-              {{ form.username }}
+              {% render_field form.username class="form-control" %}
               {% if form.username.errors %}
                 <div class="text-danger">{{ form.username.errors }}</div>
               {% endif %}
@@ -38,7 +39,7 @@
 
             <div class="mb-3">
               <label for="{{ form.password1.id_for_label }}" class="form-label">Contraseña</label>
-              {{ form.password1 }}
+              {% render_field form.password1 class="form-control" %}
               <small class="form-text text-muted">
                 <ul class="mb-0 mt-1">
                   <li>Mínimo 8 caracteres</li>
@@ -52,7 +53,7 @@
 
             <div class="mb-3">
               <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar contraseña</label>
-              {{ form.password2 }}
+              {% render_field form.password2 class="form-control" %}
               {% if form.password2.errors %}
                 <div class="text-danger">{{ form.password2.errors }}</div>
               {% endif %}

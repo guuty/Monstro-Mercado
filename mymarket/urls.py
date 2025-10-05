@@ -12,4 +12,8 @@ urlpatterns = [
     path("products/", include("productos.urls")), 
     #path("market/", include("market.urls")),  
     path('profile/', views.profile_view, name='profile'),# productos
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+    
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
