@@ -1,45 +1,58 @@
 {% extends "base.html" %}
 {% load socialaccount %}
+{% load widget_tweaks %}
 
 {% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-  <h2>Iniciar sesión</h2>
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-body p-4">
+          <h2 class="card-title text-center mb-4">Iniciar sesión</h2>
 
-  <!-- Login tradicional con usuario/contraseña -->
-  <form method="POST" action="{% url 'account_login' %}">
-    {% csrf_token %}
-    <div class="form-group">
-      {{ form.login.label_tag }}
-      {{ form.login }}
+          <form method="POST" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+              <div class="alert alert-danger">
+                Usuario o contraseña incorrectos.
+              </div>
+            {% endif %}
+
+            <div class="mb-3">
+              <label for="{{ form.login.id_for_label }}" class="form-label">Usuario o Email</label>
+              {% render_field form.login class="form-control" %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.password.id_for_label }}" class="form-label">Contraseña</label>
+              {% render_field form.password class="form-control" %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3">Ingresar</button>
+          </form>
+
+          <div class="text-center mb-3">
+            <a href="{% url 'account_reset_password' %}">¿Olvidaste tu contraseña?</a><br>
+            ¿No tenés cuenta? <a href="{% url 'account_signup' %}">Registrate</a>
+          </div>
+
+          <hr class="my-4">
+
+          <h5 class="text-center mb-3">O ingresa con</h5>
+          <div class="social-login">
+            <a href="{% provider_login_url 'google' %}" class="btn-social google" title="Google">
+              <i class="fab fa-google"></i>
+            </a>
+            <a href="{% provider_login_url 'github' %}" class="btn-social github" title="GitHub">
+              <i class="fab fa-github"></i>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      {{ form.password.label_tag }}
-      {{ form.password }}
-    </div>
- 
-    <button type="submit" class="btn btn-primary">Ingresar</button>
-  </form>
- 
-  <hr>
- 
-  <!-- Links para resetear contraseña y registrarse -->
-  <p class="auth-links">
-    <a href="{% url 'account_reset_password' %}">¿Olvidaste tu contraseña?</a><br>
-    ¿No tenés cuenta?
-    <a href="{% url 'account_signup' %}">Registrate</a>
-  </p>
- 
-  <!-- Botones sociales -->
-  <h3>O ingresa con</h3>
-  <div class="social-login">
-    <a href="{% provider_login_url 'google' %}" role="button" class="btn-social">
-      <i class="fab fa-google"></i> Google
-    </a>
-    <a href="{% provider_login_url 'github' %}" role="button" class="btn-social">
-      <i class="fab fa-github"></i> GitHub
-    </a>
   </div>
 </div>
 {% endblock %}
