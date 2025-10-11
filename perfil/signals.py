@@ -6,12 +6,12 @@ from .models import Profile
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
-        # Si es un usuario nuevo, crea el perfil
-        Profile.objects.create(user=instance)
+        # Si es un usuario nuevo, crea el perfil (o lo obtiene si ya existe)
+        Profile.objects.get_or_create(user=instance)
     else:
         # Si es un usuario existente, verifica si tiene perfil antes de guardarlo
-        try:
+        if hasattr(instance, 'profile'):
             instance.profile.save()
-        except Profile.DoesNotExist:
+        else:
             # Si no tiene perfil, créalo
-            Profile.objects.create(user=instance)
+            Profile.objects.get_or_create(user=instance)
