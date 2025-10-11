@@ -1,15 +1,190 @@
 {% extends "base.html" %}
+{% load static %}
+{% block title %}Productos • Monstro Mercado{% endblock %}
 
 {% block content %}
-<h2>Productos</h2>
-<ul>
-  {% for p in products %}
-    <li>
-      <strong>{{ p.title }}</strong> — $ {{ p.price }}  <p>Marca: {{ p.marca }}</p>  <br> 
-      <small>Publicado por {{ p.seller.get_full_name|default:p.seller.username }}</small>
-    </li>
-  {% empty %}
-    <li>No hay productos aún.</li>
-  {% endfor %}
-</ul>
+<div class="container">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="fw-bold">
+        <i class="bi bi-grid-fill text-danger me-2"></i>Todos los Productos
+      </h1>
+      <p class="text-muted">Encontrá lo que buscás en nuestro catálogo</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Sidebar de Filtros -->
+    <div class="col-lg-3 mb-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="fw-bold mb-4">
+            <i class="bi bi-funnel text-danger me-2"></i>Filtros
+          </h5>
+          
+          <form method="get">
+            <!-- Departamento/Categoría -->
+            <div class="mb-4">
+              <label class="form-label fw-bold">Categoría</label>
+              <select name="categoria" class="form-select">
+                <option value="">Todas las categorías</option>
+                <option value="electronica">Electrónica</option>
+                <option value="ropa">Ropa</option>
+                <option value="deportes">Deportes</option>
+                <option value="hogar">Hogar</option>
+              </select>
+            </div>
+
+            <!-- Marca -->
+            <div class="mb-4">
+              <label class="form-label fw-bold">Marca</label>
+              <select name="marca" class="form-select">
+                <option value="">Todas las marcas</option>
+                {% for producto in products %}
+                  <option value="{{ producto.marca }}">{{ producto.marca }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Rango de Precio -->
+            <div class="mb-4">
+              <label class="form-label fw-bold">Rango de Precio</label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="number" name="precio_min" class="form-control" placeholder="Mín" min="0">
+                </div>
+                <div class="col-6">
+                  <input type="number" name="precio_max" class="form-control" placeholder="Máx" min="0">
+                </div>
+              </div>
+            </div>
+
+            <!-- Tipo de Producto -->
+            <div class="mb-4">
+              <label class="form-label fw-bold">Tipo</label>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="nuevo" id="nuevo">
+                <label class="form-check-label" for="nuevo">Nuevo</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="usado" id="usado">
+                <label class="form-check-label" for="usado">Usado</label>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <button type="submit" class="btn btn-river w-100 mb-2">
+              <i class="bi bi-search me-2"></i>Aplicar Filtros
+            </button>
+            <a href="{% url 'productos:product_list' %}" class="btn btn-outline-secondary w-100">
+              <i class="bi bi-x-circle me-2"></i>Limpiar
+            </a>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Productos -->
+    <div class="col-lg-9">
+      <!-- Ordenamiento -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <p class="text-muted mb-0">
+          <strong>{{ products.count }}</strong> productos encontrados
+        </p>
+        <select class="form-select w-auto" onchange="this.form.submit()">
+          <option>Ordenar por</option>
+          <option value="precio_asc">Menor precio</option>
+          <option value="precio_desc">Mayor precio</option>
+          <option value="recientes">Más recientes</option>
+          <option value="antiguos">Más antiguos</option>
+        </select>
+      </div>
+
+      <!-- Grid de Productos -->
+      <div class="row g-4">
+        {% for p in products %}
+          <div class="col-md-6 col-xl-4">
+            <div class="card h-100 border-0 shadow-sm product-card" style="border-radius: 15px; overflow: hidden;">
+              <!-- Imagen del producto -->
+              {% if p.image %}
+                <img src="{{ p.image.url }}" class="card-img-top" alt="{{ p.title }}" style="height: 250px; object-fit: cover;">
+              {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                  <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                </div>
+              {% endif %}
+
+              <!-- Badge de estado -->
+              <span class="position-absolute top-0 end-0 m-3 badge bg-danger">NUEVO</span>
+
+              <!-- Contenido -->
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title fw-bold">{{ p.title }}</h5>
+                
+                {% if p.marca %}
+                  <p class="text-muted small mb-2">
+                    <i class="bi bi-tag me-1"></i>{{ p.marca }}
+                  </p>
+                {% endif %}
+
+                <p class="card-text text-muted small flex-grow-1">
+                  {{ p.description|truncatewords:15 }}
+                </p>
+
+                <!-- Footer del card -->
+                <div class="mt-auto">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold" style="color: #E4002B; font-size: 1.5rem;">
+                      ${{ p.price }}
+                    </span>
+                  </div>
+
+                  <div class="d-flex gap-2">
+                    <a href="#" class="btn btn-river flex-grow-1">
+                      <i class="bi bi-eye me-1"></i>Ver Detalles
+                    </a>
+                    <button class="btn btn-outline-river">
+                      <i class="bi bi-heart"></i>
+                    </button>
+                  </div>
+
+                  <small class="text-muted d-block mt-2">
+                    <i class="bi bi-person-circle me-1"></i>
+                    {{ p.seller.get_full_name|default:p.seller.username }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12">
+            <div class="text-center py-5">
+              <i class="bi bi-inbox" style="font-size: 5rem; color: #ddd;"></i>
+              <h3 class="mt-3 text-muted">No hay productos disponibles</h3>
+              <p class="text-muted">Intenta ajustar los filtros o vuelve más tarde</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .product-card {
+    transition: all 0.3s ease;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(228, 0, 43, 0.2) !important;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #E4002B;
+    box-shadow: 0 0 0 0.25rem rgba(228, 0, 43, 0.25);
+  }
+</style>
 {% endblock %}
