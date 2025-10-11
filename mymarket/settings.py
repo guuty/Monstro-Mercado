@@ -62,12 +62,22 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend"
 ]
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
 
-LOGIN_REDIRECT_URL = "home"
-LOGOUT_REDIRECT_URL = "home"
+# Configuración de allauth (versión nueva)
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Desactiva verificación de email
 
-ACCOUNT_LOGIN_METHODS = {"email", "username"}
-ACCOUNT_SIGNUP_FIELDS = {"email*", "username*", "password1*", "password2*"}
+# Métodos de login (nuevo formato)
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}  # Permite login con usuario O email
+
+# Campos del signup (nuevo formato)
+ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']  # Email opcional
+# Si quieres email obligatorio, usa: ['email*', 'username*', 'password1*', 'password2*']
+
+# Email backend para desarrollo (imprime en consola)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

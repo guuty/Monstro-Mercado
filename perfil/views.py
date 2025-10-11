@@ -9,11 +9,12 @@ def edit_profile(request):
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            return redirect("profile")  # o a donde quieras
+            return redirect("profile")
     else:
         form = ProfileForm(instance=profile)
 
     return render(request, "profile_edit.html", {"form": form})
 
+@login_required
 def profile_view(request):
     return render(request, "perfil/profile.html", {"profile": request.user.profile})
