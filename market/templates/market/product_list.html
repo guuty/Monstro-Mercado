@@ -8,7 +8,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Market - Productos a la Venta</h2>
     {% if user.is_authenticated %}
-      <a href="{% url 'product-create' %}" class="btn btn-primary">Vender Producto</a>
+      <a href="{% url 'productos:product-create' %}" class="btn btn-primary">Vender Producto</a>
     {% endif %}
   </div>
 
@@ -67,7 +67,7 @@
         <div class="alert alert-info text-center">
           <h4>No hay productos disponibles</h4>
           {% if user.is_authenticated %}
-            <a href="{% url 'product-create' %}" class="btn btn-primary mt-2">Publicar el primero</a>
+            <a href="{% url 'productos:product-create' %}" class="btn btn-primary mt-2">Publicar primero</a>
           {% endif %}
         </div>
       </div>

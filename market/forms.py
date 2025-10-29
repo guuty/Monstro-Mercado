@@ -1,30 +1,20 @@
 from django import forms
-from .models import Product
+from market.models import Product  
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ["title", "description", "marca", "price", "stock", "image"]
+        
+        fields = ['title', 'description', 'marca', 'price', 'stock', 'image', 'active'] 
+        
+        # Widgets para aplicar clases de Bootstrap
         widgets = {
-            "description": forms.Textarea(attrs={"rows": 3}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre o título del producto'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe el producto en detalle'}),
+            'marca': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Sony, Samsung, Genérica'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.00'}),
+            'stock': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '1'}),
+            'active': forms.CheckboxInput(attrs={'class': 'form-check-input'}), # Checkbox
+            # 'image' no necesita widget si es ImageField
         }
-        labels = {
-            "title": "Título",
-            "description": "Descripción",
-            "marca": "Marca",
-            "price": "Precio",
-            "stock": "Stock disponible",
-            "image": "Imagen del producto",
-        }
-    
-    def clean_stock(self):
-        stock = self.cleaned_data.get('stock')
-        if stock < 0:
-            raise forms.ValidationError("El stock no puede ser negativo")
-        return stock
-    
-    def clean_price(self):
-        price = self.cleaned_data.get('price')
-        if price <= 0:
-            raise forms.ValidationError("El precio debe ser mayor a 0")
-        return price

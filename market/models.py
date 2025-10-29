@@ -17,6 +17,30 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+    CONDITION_CHOICES = [
+        ('new', 'Nuevo'),
+        ('used', 'Usado'),
+    ]
+    condition = models.CharField(
+        max_length=4,
+        choices=CONDITION_CHOICES,
+        default='new'
+    )
+    
+    # Campo para Categoría
+    CATEGORY_CHOICES = [
+        ('electronica', 'Electrónica'),
+        ('ropa', 'Ropa'),
+        ('deportes', 'Deportes'),
+        ('hogar', 'Hogar'),
+        ('accesorios', 'Accesorios'), # Añade más categorías aquí
+    ]
+    category = models.CharField(
+        max_length=20,
+        choices=CATEGORY_CHOICES,
+        default='electronica'
+    )
     def __str__(self):
         return self.title
 

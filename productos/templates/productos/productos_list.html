@@ -1,190 +1,212 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
+
 {% block title %}Productos • Monstro Mercado{% endblock %}
 
 {% block content %}
-<div class="container">
-  <!-- Header -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <h1 class="fw-bold">
-        <i class="bi bi-grid-fill text-danger me-2"></i>Todos los Productos
-      </h1>
-      <p class="text-muted">Encontrá lo que buscás en nuestro catálogo</p>
-    </div>
-  </div>
-
-  <div class="row">
-    <!-- Sidebar de Filtros -->
-    <div class="col-lg-3 mb-4">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <h5 class="fw-bold mb-4">
-            <i class="bi bi-funnel text-danger me-2"></i>Filtros
-          </h5>
-          
-          <form method="get">
-            <!-- Departamento/Categoría -->
-            <div class="mb-4">
-              <label class="form-label fw-bold">Categoría</label>
-              <select name="categoria" class="form-select">
-                <option value="">Todas las categorías</option>
-                <option value="electronica">Electrónica</option>
-                <option value="ropa">Ropa</option>
-                <option value="deportes">Deportes</option>
-                <option value="hogar">Hogar</option>
-              </select>
-            </div>
-
-            <!-- Marca -->
-            <div class="mb-4">
-              <label class="form-label fw-bold">Marca</label>
-              <select name="marca" class="form-select">
-                <option value="">Todas las marcas</option>
-                {% for producto in products %}
-                  <option value="{{ producto.marca }}">{{ producto.marca }}</option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Rango de Precio -->
-            <div class="mb-4">
-              <label class="form-label fw-bold">Rango de Precio</label>
-              <div class="row g-2">
-                <div class="col-6">
-                  <input type="number" name="precio_min" class="form-control" placeholder="Mín" min="0">
-                </div>
-                <div class="col-6">
-                  <input type="number" name="precio_max" class="form-control" placeholder="Máx" min="0">
-                </div>
-              </div>
-            </div>
-
-            <!-- Tipo de Producto -->
-            <div class="mb-4">
-              <label class="form-label fw-bold">Tipo</label>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="nuevo" id="nuevo">
-                <label class="form-check-label" for="nuevo">Nuevo</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="usado" id="usado">
-                <label class="form-check-label" for="usado">Usado</label>
-              </div>
-            </div>
-
-            <!-- Botones -->
-            <button type="submit" class="btn btn-river w-100 mb-2">
-              <i class="bi bi-search me-2"></i>Aplicar Filtros
-            </button>
-            <a href="{% url 'productos:product_list' %}" class="btn btn-outline-secondary w-100">
-              <i class="bi bi-x-circle me-2"></i>Limpiar
-            </a>
-          </form>
+<div class="container custom-top-padding"> 
+    
+    <div class="row mb-5">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold mb-1">
+                <i class="bi bi-grid-fill text-danger me-2"></i>Todos los Productos
+            </h1>
+            <p class="lead text-muted">Encontrá lo que buscás en nuestro catálogo</p>
         </div>
-      </div>
     </div>
+    
+    <div class="row">
+        
+        <div class="col-lg-3 mb-5">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 80px;"> 
+                <div class="card-body p-4"> <h5 class="fw-bold mb-4">
+                        <i class="bi bi-funnel text-danger me-2"></i>Filtros
+                    </h5>
+                    
+                    <form method="get" action="{% url 'productos:product_list' %}">
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small" for="{{ filter_form.category.id_for_label }}">Categoría</label>
+                            {{ filter_form.category }}
+                        </div>
 
-    <!-- Lista de Productos -->
-    <div class="col-lg-9">
-      <!-- Ordenamiento -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <p class="text-muted mb-0">
-          <strong>{{ products.count }}</strong> productos encontrados
-        </p>
-        <select class="form-select w-auto" onchange="this.form.submit()">
-          <option>Ordenar por</option>
-          <option value="precio_asc">Menor precio</option>
-          <option value="precio_desc">Mayor precio</option>
-          <option value="recientes">Más recientes</option>
-          <option value="antiguos">Más antiguos</option>
-        </select>
-      </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small" for="{{ filter_form.marca.id_for_label }}">Marca</label>
+                            {{ filter_form.marca }}
+                        </div>
 
-      <!-- Grid de Productos -->
-      <div class="row g-4">
-        {% for p in products %}
-          <div class="col-md-6 col-xl-4">
-            <div class="card h-100 border-0 shadow-sm product-card" style="border-radius: 15px; overflow: hidden;">
-              <!-- Imagen del producto -->
-              {% if p.image %}
-                <img src="{{ p.image.url }}" class="card-img-top" alt="{{ p.title }}" style="height: 250px; object-fit: cover;">
-              {% else %}
-                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
-                  <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Rango de Precio</label>
+                            <div class="row g-2">
+                                <div class="col-6">{{ filter_form.price_min }}</div>
+                                <div class="col-6">{{ filter_form.price_max }}</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Tipo</label>
+                            <div class="d-flex flex-column gap-1">
+                                {% for radio in filter_form.condition %}
+                                    <div class="form-check">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label small" for="{{ radio.id_for_label }}">
+                                            {{ radio.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-danger w-100 mb-2">
+                            <i class="bi bi-search me-2"></i>Aplicar Filtros
+                        </button>
+                        <a href="{% url 'productos:product_list' %}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-x-circle me-2"></i>Limpiar
+                        </a>
+                    </form>
                 </div>
-              {% endif %}
-
-              <!-- Badge de estado -->
-              <span class="position-absolute top-0 end-0 m-3 badge bg-danger">NUEVO</span>
-
-              <!-- Contenido -->
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title fw-bold">{{ p.title }}</h5>
-                
-                {% if p.marca %}
-                  <p class="text-muted small mb-2">
-                    <i class="bi bi-tag me-1"></i>{{ p.marca }}
-                  </p>
-                {% endif %}
-
-                <p class="card-text text-muted small flex-grow-1">
-                  {{ p.description|truncatewords:15 }}
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <p class="text-muted mb-0">
+                    Se encontraron <strong class="text-dark">{{ product_count }}</strong> productos
                 </p>
-
-                <!-- Footer del card -->
-                <div class="mt-auto">
-                  <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="fw-bold" style="color: #E4002B; font-size: 1.5rem;">
-                      ${{ p.price }}
-                    </span>
-                  </div>
-
-                  <div class="d-flex gap-2">
-                    <a href="#" class="btn btn-river flex-grow-1">
-                      <i class="bi bi-eye me-1"></i>Ver Detalles
-                    </a>
-                    <button class="btn btn-outline-river">
-                      <i class="bi bi-heart"></i>
-                    </button>
-                  </div>
-
-                  <small class="text-muted d-block mt-2">
-                    <i class="bi bi-person-circle me-1"></i>
-                    {{ p.seller.get_full_name|default:p.seller.username }}
-                  </small>
-                </div>
-              </div>
+                <form method="GET" action="{% url 'productos:product_list' %}" class="d-flex align-items-center">
+                    <label class="me-2 text-muted small">Ordenar por:</label>
+                    {% for name, value in request.GET.items %}
+                        {% if name != 'orderby' %}
+                            <input type="hidden" name="{{ name }}" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <select name="orderby" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                        <option value="">Por defecto</option>
+                        <option value="price" {% if request.GET.orderby == 'price' %}selected{% endif %}>Menor precio</option>
+                        <option value="-price" {% if request.GET.orderby == '-price' %}selected{% endif %}>Mayor precio</option>
+                        <option value="-created_at" {% if request.GET.orderby == '-created_at' %}selected{% endif %}>Más recientes</option>
+                        <option value="created_at" {% if request.GET.orderby == 'created_at' %}selected{% endif %}>Más antiguos</option>
+                    </select>
+                </form>
             </div>
-          </div>
-        {% empty %}
-          <div class="col-12">
-            <div class="text-center py-5">
-              <i class="bi bi-inbox" style="font-size: 5rem; color: #ddd;"></i>
-              <h3 class="mt-3 text-muted">No hay productos disponibles</h3>
-              <p class="text-muted">Intenta ajustar los filtros o vuelve más tarde</p>
+
+            <div class="row g-4">
+                {% for p in products %}
+                    <div class="col-sm-6 col-md-4 col-xl-4"> <div class="card h-100 border-0 shadow-sm product-card" style="border-radius: 15px; overflow: hidden;">
+                            {% if p.condition == 'new' %}
+                                <span class="position-absolute top-0 end-0 m-3 badge bg-danger" style="z-index: 1;">NUEVO</span>
+                            {% elif p.condition == 'used' %}
+                                <span class="position-absolute top-0 end-0 m-3 badge bg-secondary" style="z-index: 1;">USADO</span>
+                            {% endif %}
+                            
+                            {% if p.image %}
+                                <a href="{% url 'productos:product-detail' pk=p.pk %}">
+                                    <img src="{{ p.image.url }}" class="card-img-top" alt="{{ p.title }}" style="height: 250px; object-fit: cover;">
+                                </a>
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                                    <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                                </div>
+                            {% endif %}
+
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title fw-bold">{{ p.title }}</h5>
+                                
+                                {% if p.marca %}
+                                    <p class="text-muted small mb-2">
+                                        <i class="bi bi-tag me-1"></i>{{ p.marca }}
+                                    </p>
+                                {% endif %}
+
+                                <p class="card-text text-muted small flex-grow-1">
+                                    {{ p.description|truncatewords:15 }}
+                                </p>
+
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="fw-bold" style="color: #E4002B; font-size: 1.5rem;">
+                                            ${{ p.price|intcomma }}
+                                        </span>
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'productos:product-detail' pk=p.pk %}" class="btn btn-danger flex-grow-1">
+                                            <i class="bi bi-eye me-1"></i>Ver Detalles
+                                        </a>
+                                        
+                                        <button 
+                                            class="btn btn-outline-danger favorite-btn" 
+                                            data-product-id="{{ p.pk }}" 
+                                            data-url="{% url 'favoritos:toggle' p.pk %}"
+                                        >
+                                            <i class="bi bi-heart{% if p.is_favorited %}-fill text-danger{% endif %}"></i>
+                                        </button>
+                                    </div>
+
+                                    <small class="d-block mt-2 seller-info">
+                                        <i class="bi bi-person-circle me-1"></i>
+                                        {{ p.seller.get_full_name|default:p.seller.username }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox" style="font-size: 5rem; color: #ddd;"></i>
+                            <h3 class="mt-3 text-muted">No se encontraron productos</h3>
+                            <p class="text-muted">Intenta quitar o ajustar los filtros.</p>
+                            <a href="{% url 'productos:product_list' %}" class="btn btn-outline-secondary mt-3">Limpiar Filtros</a>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
+            </div>
+        </div>
 </div>
 
 <style>
-  .product-card {
-    transition: all 0.3s ease;
-  }
-  
-  .product-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 35px rgba(228, 0, 43, 0.2) !important;
-  }
+    /* ... (Mantenemos tus estilos existentes) ... */
+    .product-card {
+        transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(228, 0, 43, 0.2) !important;
+    }
 
-  .form-control:focus,
-  .form-select:focus {
-    border-color: #E4002B;
-    box-shadow: 0 0 0 0.25rem rgba(228, 0, 43, 0.25);
-  }
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #E4002B;
+        box-shadow: 0 0 0 0.25rem rgba(228, 0, 43, 0.25);
+    }
+
+    /* MÁS ESPACIO EN LA PARTE SUPERIOR */
+    .custom-top-padding {
+        /* Aumentado de 100px a 120px para asegurar espacio debajo del navbar */
+        padding-top: 120px !important; 
+    }
+
+    /*  POSICIONAMIENTO STICKY */
+    .sticky-top {
+        position: sticky;
+        /* Asegura que inicie justo debajo del navbar */
+        top: 80px; 
+        z-index: 10; 
+    }
+
+    /* Estilo para información del vendedor */
+    .seller-info {
+        font-size: 0.9rem; 
+        color: #495057 !important;
+        font-weight: 500; 
+        cursor: default;
+        user-select: none;
+    }
 </style>
 {% endblock %}

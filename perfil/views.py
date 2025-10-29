@@ -13,7 +13,7 @@ def edit_profile(request):
     else:
         form = ProfileForm(instance=profile)
 
-    return render(request, "profile_edit.html", {"form": form})
+    return render(request, "perfil/profile_edit.html", {"form": form})
 
 @login_required
 def profile_view(request):

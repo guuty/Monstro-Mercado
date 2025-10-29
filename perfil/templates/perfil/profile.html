@@ -1,25 +1,61 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Perfil de {{ user.username }}{% endblock %}
+{% block title %}Mi Perfil - {{ user.first_name|default:user.username }}{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <h2>{{ request.user.username }}</h2>
-  
-  {% if profile.avatar %}
-    <img src="{{ profile.avatar.url }}" alt="Avatar de {{ user.username }}" 
-         class="rounded-circle mb-3" 
-         width="150" height="150" 
-         style="object-fit: cover;">
-  {% else %}
-    <img src="https://ui-avatars.com/api/?name={{ user.username }}&size=150&background=random" 
-         alt="Avatar" 
-         class="rounded-circle mb-3">
-  {% endif %}
-  
-  <p><strong>Biografía:</strong></p>
-  <p>{{ profile.bio|default:"Sin biografía" }}</p>
-  
-  <a href="{% url 'edit_profile' %}" class="btn btn-primary">Editar perfil</a>
+<div class="container my-5"> {# my-5 añade margen superior e inferior para separación #}
+    <div class="row justify-content-center"> {# Centra la columna del perfil #}
+        <div class="col-md-8 col-lg-6"> {# Limita el ancho de la tarjeta para que no se vea demasiado grande en pantallas amplias #}
+            <div class="card shadow-lg border-0 rounded-4"> {# Tarjeta con sombra, sin borde y esquinas redondeadas #}
+                <div class="card-body p-5 text-center"> {# p-5 añade padding, text-center centra el contenido #}
+                    
+                    {# Avatar más grande y centrado #}
+                    <div class="mb-4"> {# mb-4 añade margen inferior al avatar #}
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" 
+                                 alt="Avatar de {{ user.username }}" 
+                                 class="rounded-circle border border-5 border-light-subtle" 
+                                 width="150" height="150" 
+                                 style="object-fit: cover; box-shadow: 0 0 0 5px rgba(228, 0, 43, 0.2);"> {# Sombra suave para destacar el borde #}
+                        {% else %}
+                            {# Avatar por defecto si no hay imagen subida #}
+                            <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=E4002B&color=fff&size=150" 
+                                 alt="Avatar de {{ user.username }}" 
+                                 class="rounded-circle border border-5 border-light-subtle" 
+                                 width="150" height="150">
+                        {% endif %}
+                    </div>
+
+                    {# Nombre de usuario #}
+                    <h2 class="card-title fw-bold mb-3 text-dark">
+                        {{ user.first_name|default:user.username }}
+                    </h2>
+
+                    {# Biografía #}
+                    <div class="card-text text-muted mb-4"> {# mb-4 para margen inferior #}
+                        {% if user.profile.bio %}
+                            <p class="lead">{{ user.profile.bio }}</p> {# lead para texto un poco más grande #}
+                        {% else %}
+                            <p class="text-secondary">Aún no has añadido una biografía.</p>
+                        {% endif %}
+                    </div>
+
+                    {# Botón de editar perfil (CORREGIDO: texto y cierre incluidos) #}
+                    <a href="{% url 'edit_profile' %}" class="btn btn-river btn-lg px-4">
+                        <i class="bi bi-pencil-square me-2"></i>Editar perfil
+                    </a> 
+                    
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Si tienes problemas con las líneas rojas, es posible que estén en tu base.html. 
+       Revisa tu base.html y elimina cualquier <hr> o <div> sin cerrar en el <main> */
+</style>
 {% endblock %}

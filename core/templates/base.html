@@ -2,153 +2,256 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>{% block title %}Monstruo Mercado{% endblock %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  
-  <style>
-    :root {
-        --river-red: #E4002B;
-        --river-red-dark: #B8001F;
-        --river-red-light: #FF1744;
-    }
+    <meta charset="utf-8">
+    <title>{% block title %}Monstruo Mercado{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
-    /* Navbar personalizada */
-    .navbar-river {
-        background: linear-gradient(135deg, var(--river-red) 0%, var(--river-red-dark) 100%);
-        box-shadow: 0 2px 10px rgba(228, 0, 43, 0.3);
-    }
+    <style>
+        :root {
+            --river-red: #E4002B;
+            --river-red-dark: #B8001F;
+            --river-red-light: #FF1744;
+        }
+        
+        /* Navbar personalizada */
+        .navbar-river {
+            background: linear-gradient(135deg, var(--river-red) 0%, var(--river-red-dark) 100%);
+            box-shadow: 0 2px 10px rgba(228, 0, 43, 0.3);
+        }
+        
+        .navbar-river .navbar-brand,
+        .navbar-river .nav-link {
+            color: white !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-river .nav-link:hover {
+            transform: translateY(-2px);
+        }
+        
+        .navbar-river .btn-outline-light:hover {
+            background-color: white;
+            color: var(--river-red);
+        }
+        .navbar-river { 
+    position: sticky; /* O fixed */
+    top: 0;
+    z-index: 1050; /* Valor alto para que siempre esté por encima */
+}
+        
+        /* Botones principales */
+        .btn-river {
+            background: linear-gradient(135deg, var(--river-red) 0%, var(--river-red-dark) 100%);
+            color: white;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-river:hover {
+            background: linear-gradient(135deg, var(--river-red-dark) 0%, var(--river-red) 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(228, 0, 43, 0.4);
+        }
+        
+        .btn-outline-river {
+            border: 2px solid var(--river-red);
+            color: var(--river-red);
+            background: transparent;
+            font-weight: 500;
+        }
+        
+        .btn-outline-river:hover {
+            background: var(--river-red);
+            color: white;
+        }
+       
     
-    .navbar-river .navbar-brand,
-    .navbar-river .nav-link {
-        color: white !important;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
     
-    .navbar-river .nav-link:hover {
-        transform: translateY(-2px);
+        /* Clase de espaciado para compensar el Navbar fijo */
+    .top-content-offset {
+        /* 100px es un buen valor para empezar. AJUSTALO si necesitas más o menos. */
+        padding-top: 100px !important; 
     }
-    
-    .navbar-river .btn-outline-light:hover {
-        background-color: white;
-        color: var(--river-red);
-    }
-    
-    /* Botones principales */
-    .btn-river {
-        background: linear-gradient(135deg, var(--river-red) 0%, var(--river-red-dark) 100%);
-        color: white;
-        border: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-river:hover {
-        background: linear-gradient(135deg, var(--river-red-dark) 0%, var(--river-red) 100%);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(228, 0, 43, 0.4);
-    }
-    
-    .btn-outline-river {
-        border: 2px solid var(--river-red);
-        color: var(--river-red);
-        background: transparent;
-        font-weight: 500;
-    }
-    
-    .btn-outline-river:hover {
-        background: var(--river-red);
-        color: white;
-    }
-  </style>
+    </style>
 
-  {% block extra_css %}{% endblock %}
+
+
+    {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-light">
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-river shadow-sm sticky-top">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="{% url 'home' %}">
-        <i class="bi bi-shop-window me-2"></i>Monstruo Mercado
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mx-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'home' %}">
-              <i class="bi bi-house-door me-1"></i>Inicio
+    <nav <nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top" style="z-index: 1050;"> 
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+                <i class="bi bi-shop-window me-2"></i>Monstruo Mercado
             </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'productos:product_list' %}">
-              <i class="bi bi-grid me-1"></i>Productos
-            </a>
-          </li>
-        </ul>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <div class="d-flex align-items-center gap-3">
-          {% if user.is_authenticated %}
-            <span class="nav-link">
-              Hola, {{ user.first_name|default:user.username }}
-            </span>
-            
-            <div class="dropdown">
-              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                {% if user.profile.avatar %}
-                  <img src="{{ user.profile.avatar.url }}" 
-                      alt="Avatar" 
-                      class="rounded-circle me-2" 
-                      width="32" height="32"
-                      style="object-fit: cover;">
-                {% else %}
-                  <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=E4002B&color=fff" 
-                      alt="Avatar" 
-                      class="rounded-circle me-2" 
-                      width="32" height="32">
-                {% endif %}
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'profile' %}">
-                  <i class="bi bi-person me-2"></i>Mi Perfil
-                </a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <form method="post" action="{% url 'account_logout' %}" class="px-3">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">
-                      <i class="bi bi-box-arrow-right me-2"></i>Salir
-                    </button>
-                  </form>
-                </li>
-              </ul>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="bi bi-house-door me-1"></i>Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'productos:product_list' %}">
+                            <i class="bi bi-grid me-1"></i>Productos
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    
+                        
+                        {# BOTÓN DE PUBLICAR (VISIBLE Y CORREGIDO) #}
+   
+                       
+                        
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                 {% if user.is_authenticated %}
+                        
+                        {# BOTÓN DE PUBLICAR (VISIBLE Y CORREGIDO) #}
+                       
+
+                        <span class="navbar-brand fw-bold">
+                            {{ user.first_name|default:user.username }}
+                        </span>
+
+                                
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" 
+                                        alt="Avatar" 
+                                        class="rounded-circle me-2" 
+                                        width="32" height="32"
+                                        style="object-fit: cover;">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=E4002B&color=fff" 
+                                        alt="Avatar" 
+                                        class="rounded-circle me-2" 
+                                        width="32" height="32">
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                
+                                {# ENLACE MI PERFIL (CORREGIDO CON NAMESPACE 'perfil') #}
+                                <li><a class="dropdown-item" href="{% url 'profile' %}"> 
+                                    <i class="bi bi-person me-2"></i>Mi Perfil
+                                </a></li>
+                                
+                                {# ENLACE DE PUBLICAR DENTRO DEL DROPDOWN (CORREGIDO) #}
+                                <li><a class="dropdown-item" href="{% url 'productos:product-create' %}">
+                                     <i class="bi bi-plus-circle me-2"></i>Publicar
+                                     </a></li>
+                                <li><a class="dropdown-item" href="{% url 'favoritos:list' %}">
+                                    <i class="bi bi-heart-fill text-danger me-2"></i>Favoritos
+                                </a></li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="{% url 'account_logout' %}" class="px-3">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                            <i class="bi bi-box-arrow-right me-2"></i>Salir
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'account_login' %}" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Entrar
+                        </a>
+                        <a href="{% url 'account_signup' %}" class="btn btn-light text-danger fw-bold btn-sm">
+                            <i class="bi bi-person-plus me-1"></i>Registrarse
+                        </a>
+                    {% endif %}
+                </div>
             </div>
-          {% else %}
-            <a href="{% url 'account_login' %}" class="btn btn-outline-light btn-sm">
-              <i class="bi bi-box-arrow-in-right me-1"></i>Entrar
-            </a>
-            <a href="{% url 'account_signup' %}" class="btn btn-light text-danger fw-bold btn-sm">
-              <i class="bi bi-person-plus me-1"></i>Registrarse
-            </a>
-          {% endif %}
         </div>
-      </div>
-    </div>
-  </nav>
+    </nav>
 
-  <!-- Contenido -->
-  <main class="container my-4">
-    {% block content %}{% endblock %}
-  </main>
+    <main class="container top-content-offset">
+        {% block content %}{% endblock %}
+    </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  {% block extra_js %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Función auxiliar para obtener el CSRF token, necesaria para las peticiones POST de Django
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Escucha el evento clic en cualquier botón con la clase .favorite-btn
+    document.querySelectorAll('.favorite-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const toggleUrl = this.dataset.url;
+            const icon = this.querySelector('i');
+            
+            // Requerir autenticación
+            if (!{{ user.is_authenticated|yesno:"true,false" }}) {
+                // Si el usuario no está logueado, redirigir a login (ajusta la URL si es necesario)
+                window.location.href = "{% url 'account_login' %}"; 
+                return;
+            }
+
+            fetch(toggleUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Actualizar el icono basado en la respuesta del servidor
+                    if (data.is_favorited) {
+                        icon.classList.remove('bi-heart');
+                        icon.classList.add('bi-heart-fill');
+                        // Si el botón tiene clase btn-outline, cámbiala a btn-fill
+                        if (button.classList.contains('btn-outline-danger')) {
+                            button.classList.remove('btn-outline-danger');
+                            button.classList.add('btn-danger');
+                        }
+                    } else {
+                        icon.classList.remove('bi-heart-fill');
+                        icon.classList.add('bi-heart');
+                         // Si el botón tiene clase btn-fill, cámbiala a btn-outline
+                        if (button.classList.contains('btn-danger')) {
+                            button.classList.remove('btn-danger');
+                            button.classList.add('btn-outline-danger');
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error('Error al alternar favorito:', error));
+        });
+    });
+});
+</script>
 </body>
 </html>
