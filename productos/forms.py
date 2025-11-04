@@ -1,80 +1,84 @@
 from django import forms
-from market.models import Product 
+from productos.models import Producto
 
 # 1. FORMULARIO PARA CREAR/EDITAR PRODUCTOS (ProductForm)
 
 class ProductForm(forms.ModelForm):
     class Meta:
-        model = Product
+        model = Producto
         
-        # Campos utilizados en el formulario de publicación
         fields = [
-            'title', 'description', 'price', 'image', 'stock', 'marca',
-            'category', 'condition', 'active'
+            'nombre', 'descripcion', 'precio', 'imagen', 'stock', 'marca',
+            'category', 'condition'
         ] 
         
-        # Traducciones de las etiquetas (Labels)
         labels = {
-            'title': 'Título', 
-            'description': 'Descripción', 
-            'price': 'Precio', 
-            'image': 'Imagen', 
-            'stock': 'Cantidad', 
+            'nombre': 'Nombre del Producto', 
+            'descripcion': 'Descripción', 
+            'precio': 'Precio', 
+            'imagen': 'Imagen', 
+            'stock': 'Stock Disponible',
             'marca': 'Marca', 
             'category': 'Categoría', 
-            'condition': 'Condición', 
-            'active': 'Activo (Disponible para la venta)', 
+            'condition': 'Condición',
         }
         
-        # Widgets para aplicar estilos de Bootstrap
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Joystick PS4 Camuflado'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe el estado, uso, etc.'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control'}),
-            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}), # Usamos ClearableFileInput para imágenes
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Coca Cola 2.25L'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe el producto...'}),
+            'precio': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control'}),
-            'marca': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Sony'}),
-
-            # Select para Categoría (Dropdown)
+            'marca': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Coca Cola'}),
             'category': forms.Select(attrs={'class': 'form-select'}), 
-            
-            # RadioSelect para Condición (Botones de radio)
             'condition': forms.RadioSelect(attrs={'class': 'form-check-input'}),
-            
-            # Checkbox para Activo
-            'active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         } 
-
 
 
 # 2. FORMULARIO PARA FILTRAR PRODUCTOS (ProductFilterForm)
 
+CATEGORY_CHOICES = [
+    ('', 'Todas las categorías'),
+    ('almacen', 'Almacén'),
+    ('bebidas', 'Bebidas'),
+    ('lacteos', 'Lácteos y Huevos'),
+    ('carnes', 'Carnes y Pescados'),
+    ('frutas', 'Frutas y Verduras'),
+    ('panaderia', 'Panadería'),
+    ('limpieza', 'Limpieza'),
+    ('higiene', 'Higiene Personal'),
+    ('congelados', 'Congelados'),
+    ('snacks', 'Snacks y Golosinas'),
+    ('desayuno', 'Desayuno y Cereales'),
+]
 
-# Definimos las opciones para el filtro (deben coincidir con el modelo si es necesario)
+BRAND_CHOICES = [
+    ('', 'Todas las marcas'),
+    ('Coca Cola', 'Coca Cola'),
+    ('Quilmes', 'Quilmes'),
+    ('La Serenísima', 'La Serenísima'),
+    ('Arcor', 'Arcor'),
+    ('Bagley', 'Bagley'),
+    ('Marolio', 'Marolio'),
+    ('Molinos', 'Molinos'),
+    ('Knorr', 'Knorr'),
+    ('Hellmanns', 'Hellmann\'s'),
+    ('Nescafé', 'Nescafé'),
+    ('Cindor', 'Cindor'),
+    ('Milka', 'Milka'),
+    ('Oreo', 'Oreo'),
+    ('Fargo', 'Fargo'),
+    ('La Campagnola', 'La Campagnola'),
+]
+
 CONDITION_CHOICES = [
-    ('', 'Todos los tipos'), # Opción por defecto
+    ('', 'Todos los tipos'),
     ('new', 'Nuevo'),
     ('used', 'Usado'),
 ]
 
-# Obtenemos las opciones de categoría del modelo Product y añadimos el default 'Todas'
-CATEGORY_CHOICES = [('', 'Todas las categorías')] + list(Product.CATEGORY_CHOICES)
-
-# Opciones de Marca (Este listado debe ser alimentado dinámicamente en producción, pero lo mantenemos simple por ahora)
-# Usamos un conjunto para evitar duplicados si usas las marcas del modelo:
-# available_brands = Product.objects.values_list('marca', flat=True).distinct()
-BRAND_CHOICES = [
-    ('', 'Todas las marcas'),
-    ('Sony', 'Sony'),
-    ('Philips', 'Philips'),
-    ('360 fitness', '360 fitness'),
-    ('Ombu', 'Ombu'),
-    ('Genérico', 'Genérico'),
-]
-
 
 class ProductFilterForm(forms.Form):
-    # Campo Categoria
     category = forms.ChoiceField(
         choices=CATEGORY_CHOICES,
         required=False,
@@ -82,7 +86,6 @@ class ProductFilterForm(forms.Form):
         label='Categoría'
     )
 
-    # Campo Marca
     marca = forms.ChoiceField(
         choices=BRAND_CHOICES,
         required=False,
@@ -90,20 +93,19 @@ class ProductFilterForm(forms.Form):
         label='Marca'
     )
     
-    # Campo Tipo (Condición)
     condition = forms.ChoiceField(
         choices=CONDITION_CHOICES,
         required=False,
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
-        label='Condición'
+        label='Tipo'
     )
     
-    # Campos Rango de Precio (Min/Max)
     price_min = forms.DecimalField(
         label='Min',
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Min'})
     )
+    
     price_max = forms.DecimalField(
         label='Max',
         required=False,

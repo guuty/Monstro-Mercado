@@ -45,9 +45,9 @@ INSTALLED_APPS = [
     #terceros
     "allauth",
     "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
-    "allauth.socialaccount.providers.github",
+    #"allauth.socialaccount",
+    #"allauth.socialaccount.providers.google",
+
     
     #app propias
     "core",
@@ -97,20 +97,13 @@ ROOT_URLCONF = 'mymarket.urls'
 SOCIALACCOUNT_PROVIDERS = {
         "google": {
         "APP": {
-           'client_id': env('GOOGLE_CLIENT_ID'),
+            'client_id': env('GOOGLE_CLIENT_ID'),
             'secret': env('GOOGLE_CLIENT_SECRET'),
-             'key': ''
+            'key': ''
         },
         "SCOPE": ["profile", "email"],
         "AUTH_PARAMS": {"access_type": "online"},
-    },
-        "github": {
-        "APP": {
-             'client_id':env('GITHUB_CLIENT_ID'),
-            'secret':env('GITHUB_CLIENT_SECRET'),
-        },
-        "SCOPE": ["user:email"],
-    },
+    }
 }
 
 
