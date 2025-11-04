@@ -1,4 +1,6 @@
 {% load static %}
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -112,15 +114,15 @@
                     
                         
                         {# BOTÓN DE PUBLICAR (VISIBLE Y CORREGIDO) #}
-   
-                       
+
+
                         
                         <div class="dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                                 {% if user.is_authenticated %}
+                                {% if user.is_authenticated %}
                         
                         {# BOTÓN DE PUBLICAR (VISIBLE Y CORREGIDO) #}
-                       
+
 
                         <span class="navbar-brand fw-bold">
                             {{ user.first_name|default:user.username }}
@@ -148,9 +150,9 @@
                                 </a></li>
                                 
                                 {# ENLACE DE PUBLICAR DENTRO DEL DROPDOWN (CORREGIDO) #}
-                                <li><a class="dropdown-item" href="{% url 'productos:product-create' %}">
-                                     <i class="bi bi-plus-circle me-2"></i>Publicar
-                                     </a></li>
+                                <li><a class="dropdown-item" href="{% url 'productos:product_create' %}">
+                                    <i class="bi bi-plus-circle me-2"></i>Publicar
+                                    </a></li>
                                 <li><a class="dropdown-item" href="{% url 'favoritos:list' %}">
                                     <i class="bi bi-heart-fill text-danger me-2"></i>Favoritos
                                 </a></li>
