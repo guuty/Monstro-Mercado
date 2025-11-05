@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     #terceros
     "allauth",
     "allauth.account",
-    #"allauth.socialaccount",
+    "allauth.socialaccount",
     #"allauth.socialaccount.providers.google",
 
     
