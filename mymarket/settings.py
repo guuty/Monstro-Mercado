@@ -103,17 +103,17 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'mymarket.urls'
 
-SOCIALACCOUNT_PROVIDERS = {
-        "google": {
-        "APP": {
-            'client_id': env('GOOGLE_CLIENT_ID'),
-            'secret': env('GOOGLE_CLIENT_SECRET'),
-            'key': ''
-        },
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {"access_type": "online"},
-    }
-}
+#SOCIALACCOUNT_PROVIDERS = {
+#      "google": {
+#     "APP": {
+#         'client_id': env('GOOGLE_CLIENT_ID'),
+#         'secret': env('GOOGLE_CLIENT_SECRET'),
+#         'key': ''
+#     },
+#     "SCOPE": ["profile", "email"],
+#      "AUTH_PARAMS": {"access_type": "online"},
+#   }
+#}
 
 
 
