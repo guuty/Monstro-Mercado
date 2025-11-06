@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    #"allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.google",
 
     
     #app propias
@@ -103,6 +103,14 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'mymarket.urls'
 
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    }
+}
+SOCIALACCOUNT_LOGIN_ON_GET = True
 #SOCIALACCOUNT_PROVIDERS = {
 #      "google": {
 #     "APP": {
