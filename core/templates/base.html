@@ -1,7 +1,5 @@
 {% load static %}
-
-
-<!DOCTYPE html>
+{% load socialaccount %}  <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
@@ -40,10 +38,10 @@
             color: var(--river-red);
         }
         .navbar-river { 
-    position: sticky; /* O fixed */
-    top: 0;
-    z-index: 1050; /* Valor alto para que siempre esté por encima */
-}
+            position: sticky; /* O fixed */
+            top: 0;
+            z-index: 1050; /* Valor alto para que siempre esté por encima */
+        }
         
         /* Botones principales */
         .btn-river {
@@ -72,22 +70,19 @@
             background: var(--river-red);
             color: white;
         }
-       
-    
-    
+        
+        
         /* Clase de espaciado para compensar el Navbar fijo */
-    .top-content-offset {
-        /* 100px es un buen valor para empezar. AJUSTALO si necesitas más o menos. */
-        padding-top: 100px !important; 
-    }
+        .top-content-offset {
+            /* 100px es un buen valor para empezar. AJUSTALO si necesitas más o menos. */
+            padding-top: 100px !important; 
+        }
     </style>
-
-
 
     {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-light">
-    <nav <nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top" style="z-index: 1050;"> 
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top" style="z-index: 1050;"> 
         <div class="container">
             <a class="navbar-brand fw-bold" href="{% url 'home' %}">
                 <i class="bi bi-shop-window me-2"></i>Monstruo Mercado
@@ -111,59 +106,61 @@
                 </ul>
 
                 <div class="d-flex align-items-center gap-3">
-                    
-                        
-                        {# BOTÓN DE PUBLICAR (VISIBLE Y CORREGIDO) #}
-
-
+                    {# === LÓGICA DE LOGIN/PERFIL CORREGIDA === #}
+                    {% if user.is_authenticated %}
                         
                         <div class="dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                                {% if user.is_authenticated %}
-                        
-                        {# BOTÓN DE PUBLICAR (VISIBLE Y CORREGIDO) #}
-
-
-                        <span class="navbar-brand fw-bold">
-                            {{ user.first_name|default:user.username }}
-                        </span>
-
                                 
-                                {% if user.profile.avatar %}
-                                    <img src="{{ user.profile.avatar.url }}" 
-                                        alt="Avatar" 
-                                        class="rounded-circle me-2" 
-                                        width="32" height="32"
-                                        style="object-fit: cover;">
-                                {% else %}
-                                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=E4002B&color=fff" 
-                                        alt="Avatar" 
-                                        class="rounded-circle me-2" 
-                                        width="32" height="32">
-                                {% endif %}
+                                {# 1. LÓGICA DE IMAGEN DE PERFIL (SOCIAL O LOCAL) #}
+                                {% get_social_accounts user as accounts %}
+                                {% with default_avatar_html=True %}
+                                    {% for account in accounts %}
+                                        {% if account.provider == 'google' %}
+                                            <img src="{{ account.get_avatar_url }}" 
+                                                alt="{{ user.username }}" 
+                                                class="rounded-circle me-2" 
+                                                width="32" height="32"
+                                                style="object-fit: cover;">
+                                            {% with default_avatar_html=False %}{% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if default_avatar_html %}
+                                        {% if user.profile.avatar %}
+                                            <img src="{{ user.profile.avatar.url }}" 
+                                                alt="Avatar" 
+                                                class="rounded-circle me-2" 
+                                                width="32" height="32"
+                                                style="object-fit: cover;">
+                                        {% else %}
+                                            <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=E4002B&color=fff" 
+                                                alt="Avatar" 
+                                                class="rounded-circle me-2" 
+                                                width="32" height="32">
+                                        {% endif %}
+                                    {% endif %}
+                                {% endwith %}
+                                {# FIN IMAGEN DE PERFIL #}
+                                
+                                <span class="navbar-brand fw-bold me-0">
+                                    {{ user.first_name|default:user.username }}
+                                </span>
                             </a>
+                            
                             <ul class="dropdown-menu dropdown-menu-end">
-                                
-                                {# ENLACE MI PERFIL (CORREGIDO CON NAMESPACE 'perfil') #}
                                 <li><a class="dropdown-item" href="{% url 'profile' %}"> 
                                     <i class="bi bi-person me-2"></i>Mi Perfil
                                 </a></li>
-                                
-                                {# ENLACE DE PUBLICAR DENTRO DEL DROPDOWN (CORREGIDO) #}
                                 <li><a class="dropdown-item" href="{% url 'productos:product_create' %}">
                                     <i class="bi bi-plus-circle me-2"></i>Publicar
-                                    </a></li>
+                                </a></li>
                                 <li><a class="dropdown-item" href="{% url 'favoritos:list' %}">
                                     <i class="bi bi-heart-fill text-danger me-2"></i>Favoritos
                                 </a></li>
-
-                                 <li>
-            
-                                    <a class="dropdown-item rounded-3" href="{% url 'productos:ver_carrito' %}">
-                                        <i class="bi bi-cart3 me-2"></i> Ver Carrito
-                                    </a>
-                                </li>
-                                
+                                <li><a class="dropdown-item rounded-3" href="{% url 'productos:ver_carrito' %}">
+                                    <i class="bi bi-cart3 me-2"></i> Ver Carrito
+                                </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="post" action="{% url 'account_logout' %}" class="px-3">
@@ -176,6 +173,7 @@
                             </ul>
                         </div>
                     {% else %}
+                        {# Botones de LOGIN/SIGNUP para usuarios no autenticados #}
                         <a href="{% url 'account_login' %}" class="btn btn-outline-light btn-sm">
                             <i class="bi bi-box-arrow-in-right me-1"></i>Entrar
                         </a>
@@ -183,11 +181,11 @@
                             <i class="bi bi-person-plus me-1"></i>Registrarse
                         </a>
                     {% endif %}
+                    {# === FIN LÓGICA DE LOGIN/PERFIL CORREGIDA === #}
                 </div>
             </div>
         </div>
     </nav>
-
     <main class="container top-content-offset">
         {% block content %}{% endblock %}
     </main>
@@ -249,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         icon.classList.remove('bi-heart-fill');
                         icon.classList.add('bi-heart');
-                         // Si el botón tiene clase btn-fill, cámbiala a btn-outline
+                           // Si el botón tiene clase btn-fill, cámbiala a btn-outline
                         if (button.classList.contains('btn-danger')) {
                             button.classList.remove('btn-danger');
                             button.classList.add('btn-outline-danger');
@@ -261,6 +259,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+ 
 </script>
+ <script src="https://sdk.mercadopago.com/js/v2"></script>
 </body>
 </html>

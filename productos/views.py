@@ -217,9 +217,9 @@ def create_preference_cart(request):
         "items": items,
         "back_urls": {
             # Asegúrate que estas URLs estén correctas en tu urls.py
-            "success": request.build_absolute_uri("/products/pago-exitoso/"),
-            "failure": request.build_absolute_uri("/products/pago-fallido/"),
-            "pending": request.build_absolute_uri("/products/pago-pendiente/"),
+            "success": settings.SITE_URL("/products/pago-exitoso/"),
+            "failure": settings.SITE_URL("/products/pago-fallido/"),
+            "pending": settings.SITE_URL("/products/pago-pendiente/"),
         },
         "auto_return": "approved"
                      }

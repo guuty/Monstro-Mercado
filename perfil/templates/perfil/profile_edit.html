@@ -1,15 +1,100 @@
 {% extends "base.html" %}
-{%load static%}
+{% load static %}
+{% load widget_tweaks %} {# ¡Necesitas cargar esto si quieres aplicar clases CSS! #}
+
+{% block title %}Editar Perfil{% endblock %}
+
 {% block content %}
+<div class="container my-5">
+    
+    {# Mostrar mensajes de Django (éxito/error) #}
+    {% if messages %}
+        <div class="row justify-content-center mb-3">
+            <div class="col-md-8 col-lg-6">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="card shadow-lg p-4 border-0 rounded-4">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4 text-danger fw-bold">
+                        <i class="bi bi-pencil-square me-2"></i>Editar mi Perfil
+                    </h2>
+                    <hr class="mb-4">
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {# Sección del Avatar Actualizada y Centrada #}
+                        <div class="text-center mb-4">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" 
+                                    alt="Avatar actual" 
+                                    class="img-thumbnail rounded-circle mb-3" 
+                                    style="width: 150px; height: 150px; object-fit: cover;">
+                            {% endif %}
+                            <p class="text-muted small">Haz clic en "Seleccionar archivo" en el campo de abajo para cambiar tu avatar.</p>
+                        </div>
+                        
+                        {# === 1. Renderizado del USER FORM (Nombre y Apellido) === #}
+                        <h4 class="text-secondary fw-bold mb-3">Información Personal</h4>
+                        {% for field in user_form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+                                {{ field|add_class:"form-control" }}
+                                {% for error in field.errors %}
+                                    <small class="text-danger d-block">{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        
+                        <hr class="my-4">
+
+                        {# === 2. Renderizado del PROFILE FORM (Bio, Website, Avatar) === #}
+                        <h4 class="text-secondary fw-bold mb-3">Detalles de Perfil</h4>
+                        {% for field in profile_form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+                                
+                                {% if field.field.widget.input_type == 'file' %}
+                                    {# Los campos de archivo se renderizan sin la clase form-control #}
+                                    {{ field }}
+                                {% else %}
+                                    {{ field|add_class:"form-control" }} 
+                                {% endif %}
+                                
+                                {% for error in field.errors %}
+                                    <small class="text-danger d-block">{{ error }}</small>
+                                {% endfor %}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        {# ============================================================== #}
 
 
-<div class="container mt-5">
-  <h2>Editar perfil</h2>
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a href="{% url 'profile' %}" class="btn btn-secondary">Cancelar</a>
-  </form>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-danger btn-lg me-md-2">
+                                <i class="bi bi-save me-2"></i>Guardar Cambios
+                            </button>
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
