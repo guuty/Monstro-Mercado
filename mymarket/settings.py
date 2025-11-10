@@ -65,7 +65,6 @@ INSTALLED_APPS = [
     "perfil",
     "favoritos",
     'widget_tweaks',
-    'pago_test',
 ]
 
 SITE_ID = 1

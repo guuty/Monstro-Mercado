@@ -16,7 +16,6 @@ urlpatterns = [
     path('perfil/', include('perfil.urls')),
     path('favoritos/', include("favoritos.urls", namespace='favoritos')),
 
-    path("test/", include("pago_test.urls")),
 ]
 
     
