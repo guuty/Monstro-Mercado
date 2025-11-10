@@ -7,6 +7,13 @@ from django.views.generic import DetailView
 from productos.models import Producto, Carrito, ItemCarrito
 from .forms import ProductForm, ProductFilterForm
 
+import requests
+from django.http import JsonResponse
+import mercadopago
+from django.conf import settings 
+from django.http import JsonResponse
+
+
 # Intenta importar Favorite, si falla usa None
 try:
     from productos.models import Favorite
@@ -168,3 +175,85 @@ def vaciar_carrito(request):
     carrito.items.all().delete()
     messages.success(request, 'Carrito vaciado')
     return redirect('productos:ver_carrito')
+
+@login_required
+def vaciar_carrito(request):
+    carrito = get_object_or_404(Carrito, usuario=request.user)
+    carrito.items.all().delete()
+    messages.success(request, 'Carrito vaciado')
+    return redirect('productos:ver_carrito')
+
+
+
+@login_required
+def create_preference_cart(request):
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+
+    # Si el carrito está vacío
+    if not carrito.items.exists():
+        return JsonResponse({"error": "El carrito está vacío"}, status=400)
+
+    # Crear items a enviar a Mercado Pago
+    items = []
+    for item in carrito.items.all():
+        # **IMPORTANTE**: Agregar currency_id para evitar errores de validación de MP
+        items.append({
+            "title": item.producto.nombre,
+            "quantity": item.cantidad,
+            "unit_price": float(item.producto.precio),
+            "currency_id": "ARS" 
+        })
+    
+        
+        url = "https://api.mercadopago.com/checkout/preferences"
+
+        headers = {
+        # Usamos f-string para insertar el token
+        "Authorization": f"Bearer {settings.MERCADOPAGO_ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+        body = {
+        "items": items,
+        "back_urls": {
+            # Asegúrate que estas URLs estén correctas en tu urls.py
+            "success": request.build_absolute_uri("/products/pago-exitoso/"),
+            "failure": request.build_absolute_uri("/products/pago-fallido/"),
+            "pending": request.build_absolute_uri("/products/pago-pendiente/"),
+        },
+        "auto_return": "approved"
+                     }
+
+        response = requests.post(url, headers=headers, json=body)
+    
+    # Manejo de la Respuesta
+    if response.status_code == 201:
+        data = response.json()
+        
+        # Muestra el ID de Preferencia en la terminal si es exitoso
+        preference_id = data.get("id", "ID no encontrada")
+        print("--------------------------------------------------")
+        print("✅ PREFERENCIA CREADA EXITOSAMENTE.")
+        print("ID de Preferencia:", preference_id)
+        print("--------------------------------------------------")
+        
+        return JsonResponse({"init_point": data.get("init_point")})
+    
+    else:
+        # Lógica de FALLO (mantenida para debug)
+        try:
+            error_data = response.json()
+        except requests.exceptions.JSONDecodeError:
+            error_data = {"message": response.text or "Respuesta de MP inválida y no-JSON."}
+
+        print("--------------------------------------------------")
+        print(f"🛑 FALLO AL CREAR PREFERENCIA. STATUS CODE: {response.status_code}")
+        print("DETALLE DE MERCADO PAGO:", error_data)
+        print("--------------------------------------------------")
+        
+        status_code = response.status_code if response.status_code >= 400 else 400
+        
+        return JsonResponse({
+            "error": "No se pudo generar el link de pago",
+            "detail": error_data.get("message", "Error desconocido o token inválido.")
+        }, status=status_code)

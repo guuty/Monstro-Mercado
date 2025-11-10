@@ -22,3 +22,6 @@ tzdata==2025.2
 urllib3==2.5.0
 whitenoise==6.11.0
 django-allauth[socialaccount]
+mercado-pago==2.6.0
+requests
+python-dotenv

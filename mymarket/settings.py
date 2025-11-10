@@ -14,7 +14,9 @@ from pathlib import Path
 import environ
 import os
 import dj_database_url
-from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()
+import mercadopago
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -63,6 +65,7 @@ INSTALLED_APPS = [
     "perfil",
     "favoritos",
     'widget_tweaks',
+    'pago_test',
 ]
 
 SITE_ID = 1
@@ -122,7 +125,9 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 #      "AUTH_PARAMS": {"access_type": "online"},
 #   }
 #}
-
+#MERCADOPAGO_ACCESS_TOKEN = "APP_USR-7679191694192086-111010-d76a2ccf1b3829ce6871afcb712022a7-2979372988"
+MERCADOPAGO_ACCESS_TOKEN = os.getenv("APP_USR-2094238887770776-111012-faf9774d143d3702c8267324814794cc-2979372988")
+sdk = mercadopago.SDK("APP_USR-2094238887770776-111012-faf9774d143d3702c8267324814794cc-2979372988")
 
 
 TEMPLATES = [
@@ -194,7 +199,7 @@ if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-SATICFILES_DIRS= [
+STATICFILES_DIRS= [
     BASE_DIR / "static"
     ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
