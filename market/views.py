@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import ProductForm
+from .forms import SignUpForm, ProductForm 
 from .models import Product
 
 
@@ -48,3 +48,16 @@ def product_delete(request, pk):
         return redirect("product-list")
     
     return render(request, "market/product_confirm_delete.html", {"product": product})
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Inicia sesión automáticamente
+            messages.success(request, '¡Cuenta creada exitosamente!')
+            return redirect('product-list')  # o la página que quieras
+    else:
+        form = SignUpForm()
+    return render(request, 'registration/signup.html', {'form': form})

@@ -49,20 +49,19 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.humanize',
     
-    #terceros
+    # Terceros
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
-
+    'widget_tweaks',
     
-    #app propias
+    # Apps propias
     "core",
     "market",
     "productos",
     "perfil",
     "favoritos",
-    'widget_tweaks',
 ]
 
 SITE_ID = 1
@@ -71,38 +70,48 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend"
 ]
+
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
-# Configuración de allauth (versión nueva)
+# ========== CONFIGURACIÓN DE ALLAUTH (VERSIÓN NUEVA 0.58+) ==========
+
+# Formulario personalizado
+ACCOUNT_FORMS = {
+    'signup': 'market.forms.CustomSignupForm',
+}
+
+# Verificación de email
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # Desactiva verificación de email
 
-# Métodos de login (nuevo formato)
+# Métodos de login
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}  # Permite login con usuario O email
 
-# Campos del signup (nuevo formato)
-ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']  # Email opcional
-# Si quieres email obligatorio, usa: ['email*', 'username*', 'password1*', 'password2*']
+# ⭐ CAMPOS DEL SIGNUP - INCLUYE EMAIL OBLIGATORIO
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+
+# Otras configuraciones útiles
+ACCOUNT_EMAIL_REQUIRED = True  # Email obligatorio
+ACCOUNT_USERNAME_REQUIRED = True  # Username obligatorio
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'  # Permite ambos métodos de login
 
 # Email backend para desarrollo (imprime en consola)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware", 
-    "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'mymarket.urls'
-
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
@@ -111,19 +120,6 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 SOCIALACCOUNT_LOGIN_ON_GET = True
-#SOCIALACCOUNT_PROVIDERS = {
-#      "google": {
-#     "APP": {
-#         'client_id': env('GOOGLE_CLIENT_ID'),
-#         'secret': env('GOOGLE_CLIENT_SECRET'),
-#         'key': ''
-#     },
-#     "SCOPE": ["profile", "email"],
-#      "AUTH_PARAMS": {"access_type": "online"},
-#   }
-#}
-
-
 
 TEMPLATES = [
     {
@@ -137,6 +133,7 @@ TEMPLATES = [
                 'django.template.context_processors.request', 
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -144,10 +141,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mymarket.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
@@ -156,8 +150,6 @@ DATABASES = {
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -173,40 +165,30 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'es-ar'
-
 TIME_ZONE = 'America/Argentina/Buenos_Aires'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATIC_URL = "/static/"
 if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-SATICFILES_DIRS= [
+STATICFILES_DIRS = [
     BASE_DIR / "static"
-    ]
+]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Formato de números
 USE_THOUSAND_SEPARATOR = True
 THOUSAND_SEPARATOR = '.'
 DECIMAL_SEPARATOR = ','

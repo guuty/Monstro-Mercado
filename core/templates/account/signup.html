@@ -1,72 +1,171 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 
-{% block title %}Crear cuenta{% endblock %}
+{% block title %}Crear cuenta - Mi Market{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
   <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card shadow">
-        <div class="card-body p-4">
-          <h2 class="card-title text-center mb-4">Crear cuenta</h2>
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-lg border-0">
+        <div class="card-body p-5">
+          <h2 class="card-title text-center mb-4 fw-bold">Crear cuenta</h2>
+          <p class="text-center text-muted mb-4">Completá el formulario para comenzar</p>
 
-          <form method="post">
+          <form method="post" novalidate>
             {% csrf_token %}
             
-            {% if form.errors %}
-              <div class="alert alert-danger">
-                Por favor corregí los errores a continuación.
+            <!-- Mensaje de error general -->
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ form.non_field_errors }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
             {% endif %}
 
+            {% if form.errors and not form.non_field_errors %}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Por favor corregí los errores a continuación.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endif %}
+
+            <!-- Campo Email -->
             <div class="mb-3">
-              <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-              {% render_field form.email class="form-control" %}
+              <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
+                Email <span class="text-danger">*</span>
+              </label>
+              {% render_field form.email class="form-control" placeholder="Ingresar tu email" %}
               {% if form.email.errors %}
-                <div class="text-danger">{{ form.email.errors }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ form.email.errors|first }}
+                </div>
               {% endif %}
+              <small class="form-text text-muted">Usaremos este email para contactarte.</small>
             </div>
 
+            <!-- Campo Nombre de usuario -->
             <div class="mb-3">
-              <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de usuario</label>
-              {% render_field form.username class="form-control" %}
+              <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">
+                Nombre de usuario <span class="text-danger">*</span>
+              </label>
+              {% render_field form.username class="form-control" placeholder="Nombre de usuario" autocomplete="username" %}
               {% if form.username.errors %}
-                <div class="text-danger">{{ form.username.errors }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ form.username.errors|first }}
+                </div>
               {% endif %}
+              <small class="form-text text-muted">Será visible para otros usuarios.</small>
             </div>
 
+            <!-- Campo Contraseña -->
             <div class="mb-3">
-              <label for="{{ form.password1.id_for_label }}" class="form-label">Contraseña</label>
-              {% render_field form.password1 class="form-control" %}
-              <small class="form-text text-muted">
-                <ul class="mb-0 mt-1">
-                  <li>Mínimo 8 caracteres</li>
-                  <li>No puede ser solo numérica</li>
-                </ul>
-              </small>
+              <label for="{{ form.password1.id_for_label }}" class="form-label fw-semibold">
+                Contraseña <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                {% render_field form.password1 class="form-control" placeholder="*********" autocomplete="new-password" %}
+              </div>
               {% if form.password1.errors %}
-                <div class="text-danger">{{ form.password1.errors }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ form.password1.errors|first }}
+                </div>
+              {% else %}
+                <div class="form-text">
+                  <small>
+                    <strong>Tu contraseña debe cumplir:</strong>
+                    <ul class="mb-0 mt-1 ps-3">
+                      <li>Mínimo 8 caracteres</li>
+                      <li>No puede ser solo numérica</li>
+                      <li>No puede ser muy común (ej: password123)</li>
+                      <li>No puede ser muy similar a tu información personal</li>
+                    </ul>
+                  </small>
+                </div>
               {% endif %}
             </div>
 
-            <div class="mb-3">
-              <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar contraseña</label>
-              {% render_field form.password2 class="form-control" %}
+            <!-- Campo Confirmar Contraseña -->
+            <div class="mb-4">
+              <label for="{{ form.password2.id_for_label }}" class="form-label fw-semibold">
+                Confirmar contraseña <span class="text-danger">*</span>
+              </label>
+              {% render_field form.password2 class="form-control" placeholder="*********" autocomplete="new-password" %}
               {% if form.password2.errors %}
-                <div class="text-danger">{{ form.password2.errors }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ form.password2.errors|first }}
+                </div>
               {% endif %}
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 mb-3">Registrarse</button>
-          </form>
+            <!-- Botón de registro -->
+            <button type="submit" class="btn btn-primary w-100 py-2 mb-3 fw-semibold">
+              Registrarse
+            </button>
 
-          <div class="text-center mb-3">
-            <p>¿Ya tenés cuenta? <a href="{% url 'account_login' %}">Iniciá sesión</a></p>
-          </div>
+            <!-- Divider -->
+            <div class="position-relative my-4">
+              <hr>
+              <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted">
+                o
+              </span>
+            </div>
+
+            <!-- Link a login -->
+            <div class="text-center">
+              <p class="mb-0">
+                ¿Ya tenés cuenta? 
+                <a href="{% url 'account_login' %}" class="text-decoration-none fw-semibold">
+                  Iniciá sesión
+                </a>
+              </p>
+            </div>
+          </form>
         </div>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="text-center mt-4">
+        <p class="text-muted small">
+          Al registrarte, aceptás nuestros 
+          <a href="#" class="text-decoration-none">Términos de Servicio</a> y 
+          <a href="#" class="text-decoration-none">Política de Privacidad</a>
+        </p>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  .card {
+    border-radius: 12px;
+  }
+  
+  .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+  }
+  
+  .btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0b5ed7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+  }
+  
+  .invalid-feedback {
+    font-size: 0.875rem;
+  }
+  
+  .form-text small {
+    font-size: 0.8rem;
+  }
+</style>
 {% endblock %}

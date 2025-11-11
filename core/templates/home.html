@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Inicio • Monstruo Mercado{% endblock %}
+{% block title %}Inicio • Monstromart{% endblock %}
 
 {% block content %}
 {% if not user.is_authenticated %}
   <!-- Hero Section para usuarios no autenticados -->
   <div class="text-center py-5" style="background: linear-gradient(135deg, #E4002B 0%, #B8001F 100%); color: white; border-radius: 15px; margin-bottom: 3rem;">
     <div class="container py-5">
-      <h1 class="display-3 fw-bold mb-4">Bienvenido a Monstruo Mercado</h1>
+      <h1 class="display-3 fw-bold mb-4">Bienvenido a MONSTROMART</h1>
       <p class="lead mb-5">Iniciá sesión para comprar, vender o intercambiar productos</p>
       
       <div class="d-flex justify-content-center gap-3 flex-wrap">
@@ -18,11 +18,9 @@
         <a href="{% url 'account_signup' %}" class="btn btn-outline-light btn-lg">
           <i class="bi bi-person-plus me-2"></i>Registrarse
         </a>
-        {# NUEVO BOTÓN DE GOOGLE AQUI #}
         <a href="{% url 'google_login' %}" class="btn btn-outline-light btn-lg border-2">
-            <i class="fab fa-google me-2"></i>Continuar con Google
-        </a>
-        {# FIN NUEVO BOTÓN DE GOOGLE #}
+          <i class="fab fa-google me-2"></i>Continuar con Google
+        </a>
       </div>
     </div>
   </div>
@@ -61,7 +59,7 @@
       <h2 class="fw-bold mb-0">
         <i class="bi bi-fire text-danger me-2"></i>Últimos Productos
       </h2>
-      <a href="{% url 'productos:product_list' %}" class="btn btn-river">
+      <a href="{% url 'productos:product_list' %}" class="btn btn-custom-gray">
         Ver todos <i class="bi bi-arrow-right ms-1"></i>
       </a>
     </div>
@@ -69,33 +67,39 @@
     <div class="row g-4">
       {% for product in products %}
         <div class="col-md-4 col-lg-3">
-          <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: all 0.3s ease;">
-            {% if product.imagen %}
-              <img src="{{ product.imagen.url }}" class="card-img-top" alt="{{ product.nombre }}" style="height: 200px; object-fit: cover;">
-            {% else %}
-              <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
-                <i class="bi bi-image text-white fs-1"></i>
+          <!-- Card clickeable completa -->
+          <a href="{% url 'productos:product_detail' product.pk %}" class="text-decoration-none">
+            <div class="product-card card h-100 border-0 shadow-sm">
+              {% if product.imagen %}
+                <img src="{{ product.imagen.url }}" class="card-img-top" alt="{{ product.nombre }}">
+              {% else %}
+                <div class="bg-secondary d-flex align-items-center justify-content-center product-image-placeholder">
+                  <i class="bi bi-image text-white fs-1"></i>
+                </div>
+              {% endif %}
+              
+              <div class="card-body">
+                <h5 class="card-title fw-bold text-dark">{{ product.nombre }}</h5>
+                <p class="card-text text-muted small">{{ product.descripcion|truncatewords:15 }}</p>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                  <span class="fw-bold fs-5 text-dark">${{ product.precio }}</span>
+                  <span class="btn-view-more">
+                    Ver más <i class="bi bi-arrow-right ms-1"></i>
+                  </span>
+                </div>
               </div>
-            {% endif %}
-            
-            <div class="card-body">
-              <h5 class="card-title fw-bold">{{ product.nombre }}</h5>
-              <p class="card-text text-muted small">{{ product.descripcion|truncatewords:15 }}</p>
-              <div class="d-flex justify-content-between align-items-center mt-3">
-                <span class="fw-bold fs-5" style="color: #E4002B;">${{ product.precio }}</span>
-                <a href="{% url 'productos:product_list' %}" class="btn btn-sm btn-outline-river">
-                  Ver más <i class="bi bi-arrow-right ms-1"></i>
-                </a>
-              </div>
+              
+              <!-- Línea roja decorativa en el borde inferior -->
+              <div class="red-accent-line"></div>
             </div>
-          </div>
+          </a>
         </div>
       {% empty %}
         <div class="col-12">
           <div class="text-center py-5">
             <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
             <p class="text-muted fs-5">No hay productos publicados todavía.</p>
-            <a href="{% url 'productos:product_create' %}" class="btn btn-river mt-3">
+            <a href="{% url 'productos:product_create' %}" class="btn btn-custom-gray mt-3">
               <i class="bi bi-plus-circle me-2"></i>Publicar primero
             </a>
           </div>
@@ -106,9 +110,84 @@
 {% endif %}
 
 <style>
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(228, 0, 43, 0.2) !important;
+  /* Botón gris con línea roja */
+  .btn-custom-gray {
+    background: linear-gradient(to bottom, #f8f9fa 0%, #f8f9fa calc(100% - 4px), #E4002B calc(100% - 4px), #E4002B 100%);
+    color: #212529;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-custom-gray:hover {
+    background: linear-gradient(to bottom, #e9ecef 0%, #e9ecef calc(100% - 4px), #B8001F calc(100% - 4px), #B8001F 100%);
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Card de producto con estilo gris y línea roja */
+  .product-card {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: linear-gradient(to bottom, #ffffff 0%, #ffffff calc(100% - 5px), transparent calc(100% - 5px));
+    position: relative;
+    cursor: pointer;
+  }
+
+  .product-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .product-image-placeholder {
+    height: 200px;
+  }
+
+  .product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .product-card:hover .card-img-top {
+    transform: scale(1.05);
+  }
+
+  /* Línea roja decorativa en la parte inferior */
+  .red-accent-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #E4002B 0%, #B8001F 100%);
+    transition: height 0.3s ease;
+  }
+
+  .product-card:hover .red-accent-line {
+    height: 6px;
+  }
+
+  /* Estilo del texto "Ver más" */
+  .btn-view-more {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .product-card:hover .btn-view-more {
+    color: #E4002B;
+  }
+
+  /* Efecto en el precio al hacer hover */
+  .product-card:hover .fs-5 {
+    color: #E4002B !important;
+    transition: color 0.3s ease;
   }
 </style>
 {% endblock %}
