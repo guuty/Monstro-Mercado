@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Ticket de Compra - {{ pedido.numero_pedido }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Botones de acción (NO se imprimen) -->
+    <div class="no-print text-center mb-4">
+        <button onclick="window.print()" class="btn btn-danger btn-lg">
+            <i class="bi bi-printer-fill me-2"></i>Imprimir Ticket
+        </button>
+        <a href="{% url 'productos:mis_pedidos' %}" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-arrow-left me-2"></i>Volver a Mis Pedidos
+        </a>
+    </div>
+
+    <!-- TICKET PARA IMPRIMIR -->
+    <div class="ticket-container mx-auto" style="max-width: 800px;">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-5">
+                
+                <!-- Encabezado -->
+                <div class="text-center mb-4">
+                    <h1 class="fw-bold text-danger">MONSTROMART</h1>
+                    <p class="text-muted mb-0">Tu Supermercado Online</p>
+                    <hr class="my-3">
+                </div>
+
+                <!-- Información del Pedido -->
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <h5 class="fw-bold mb-3">Información del Pedido</h5>
+                        <p class="mb-1"><strong>Nº Pedido:</strong> {{ pedido.numero_pedido }}</p>
+                        <p class="mb-1"><strong>Fecha:</strong> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                        <p class="mb-1">
+                            <strong>Estado:</strong> 
+                            <span class="badge 
+                                {% if pedido.estado == 'pagado' %}bg-success
+                                {% elif pedido.estado == 'pendiente' %}bg-warning
+                                {% elif pedido.estado == 'enviado' %}bg-info
+                                {% elif pedido.estado == 'entregado' %}bg-primary
+                                {% else %}bg-danger{% endif %}">
+                                {{ pedido.get_estado_display }}
+                            </span>
+                        </p>
+                    </div>
+                    
+                    <div class="col-6">
+                        <h5 class="fw-bold mb-3">Datos del Cliente</h5>
+                        <p class="mb-1"><strong>Nombre:</strong> {{ pedido.nombre_completo }}</p>
+                        <p class="mb-1"><strong>Email:</strong> {{ pedido.email }}</p>
+                        {% if pedido.telefono %}
+                        <p class="mb-1"><strong>Teléfono:</strong> {{ pedido.telefono }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Tabla de Productos -->
+                <h5 class="fw-bold mb-3">Detalle de la Compra</h5>
+                <div class="table-responsive">
+                    <table class="table table-borderless">
+                        <thead class="border-bottom">
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-end">Precio Unit.</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in pedido.items.all %}
+                            <tr>
+                                <td>{{ item.nombre_producto }}</td>
+                                <td class="text-center">{{ item.cantidad }}</td>
+                                <td class="text-end">${{ item.precio_unitario|intcomma }}</td>
+                                <td class="text-end fw-bold">${{ item.subtotal|intcomma }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr>
+
+                <!-- Totales -->
+                <div class="row">
+                    <div class="col-6 offset-6">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <strong>${{ pedido.subtotal|intcomma }}</strong>
+                        </div>
+                        
+                        {% if pedido.descuento > 0 %}
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Descuento:</span>
+                            <strong>-${{ pedido.descuento|intcomma }}</strong>
+                        </div>
+                        {% endif %}
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between">
+                            <span class="fs-5 fw-bold">TOTAL:</span>
+                            <span class="fs-4 fw-bold text-danger">${{ pedido.total|intcomma }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Pie de página -->
+                <div class="text-center text-muted small">
+                    <p class="mb-1">¡Gracias por tu compra!</p>
+                    <p class="mb-1">Para consultas: contacto@monstromart.com | 0810-999-58626</p>
+                    <p class="mb-0">www.monstromart.com</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ESTILOS PARA IMPRESIÓN -->
+<style>
+.ticket-container {
+    background: white;
+}
+
+@media print {
+    .no-print,
+    nav,
+    footer,
+    .navbar,
+    .btn {
+        display: none !important;
+    }
+    
+    body {
+        padding: 0 !important;
+        margin: 0 !important;
+        background: white !important;
+    }
+    
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .ticket-container {
+        max-width: 100% !important;
+        box-shadow: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .card-body {
+        page-break-inside: avoid;
+    }
+    
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,66 +1,68 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Q
 from django.views.generic import DetailView
 
-from productos.models import Producto, Carrito, ItemCarrito
+from productos.models import Producto, Carrito, ItemCarrito, Pedido, ItemPedido
 from .forms import ProductForm, ProductFilterForm
 
 import requests
 from django.http import JsonResponse
 import mercadopago
 from django.conf import settings 
-from django.http import JsonResponse
 
-
-# Intenta importar Favorite, si falla usa None
+# Importar Favorite desde favoritos
 try:
-    from productos.models import Favorite
+    from favoritos.models import Favorite
 except ImportError:
-    try:
-        from favoritos.models import Favorite
-    except ImportError:
-        Favorite = None
-# Vista para listar productos (CON FILTROS INTEGRADOS)
+    Favorite = None
+
+
+# ========== VISTA LISTA DE PRODUCTOS ==========
 def lista_productos(request):
     # 1. Inicializa la consulta base
-    productos = Producto.objects.all().order_by('creado')
+    productos = Producto.objects.all().order_by('-creado')
     
-    # 2. Inicializa el formulario de filtros con los datos de la URL (request.GET)
+    # ========== BÚSQUEDA POR TEXTO ==========
+    search_query = request.GET.get('q', '').strip()
+    if search_query:
+        productos = productos.filter(
+            Q(nombre__icontains=search_query) |
+            Q(descripcion__icontains=search_query) |
+            Q(marca__icontains=search_query) |
+            Q(category__icontains=search_query)
+        )
+    
+    # 2. Inicializa el formulario de filtros
     form = ProductFilterForm(request.GET)
     
     # --- APLICACIÓN DE FILTROS ---
     if form.is_valid():
-        # Obtiene los datos limpios del formulario
         category = form.cleaned_data.get('category')
         marca = form.cleaned_data.get('marca')
         condition = form.cleaned_data.get('condition')
         price_min = form.cleaned_data.get('price_min')
         price_max = form.cleaned_data.get('price_max')
         
-        # Filtro por Categoría (si no es el valor por defecto/vacío)
         if category:
             productos = productos.filter(category=category)
-            
-        # Filtro por Marca (si no es el valor por defecto/vacío)
         if marca:
             productos = productos.filter(marca=marca)
-            
-        # Filtro por Condición (Tipo)
         if condition:
             productos = productos.filter(condition=condition)
-            
-        # Filtro por Rango de Precio
         if price_min is not None:
             productos = productos.filter(precio__gte=price_min)
-            
         if price_max is not None:
             productos = productos.filter(precio__lte=price_max)
-    # -----------------------------
     
-    # 3. LÓGICA DE FAVORITOS (existente)
-    if request.user.is_authenticated:
+    # Ordenar
+    orderby = request.GET.get('orderby')
+    if orderby:
+        productos = productos.order_by(orderby)
+    
+    # 3. LÓGICA DE FAVORITOS
+    if request.user.is_authenticated and Favorite:
         favorited_subquery = Favorite.objects.filter(
             user=request.user, 
             product=OuterRef('pk')
@@ -69,24 +71,17 @@ def lista_productos(request):
             is_favorited=Exists(favorited_subquery)
         )
     
-    print("=" * 50)
-    print(f"Cantidad de productos: {productos.count()}")
-    for producto in productos:
-        is_fav = getattr(producto, 'is_favorited', False)
-        print(f"- {producto.nombre}: ${producto.precio} | ¿Favorito? {is_fav}")
-    print("=" * 50)
-    
-    # Pasamos los productos filtrados, el formulario de filtros y la cuenta total
     context = {
         'products': productos,
-        'filter_form': form,             
-        'product_count': productos.count(), 
+        'filter_form': form,
+        'product_count': productos.count(),
+        'search_query': search_query,
     }
     
     return render(request, 'productos/productos_list.html', context)
 
 
-# Vista para crear un producto (EXISTENTE)
+# ========== CREAR PRODUCTO ==========
 @login_required
 def create_product(request):
     if request.method == 'POST':
@@ -95,6 +90,7 @@ def create_product(request):
             product = form.save(commit=False)
             product.seller = request.user 
             product.save()
+            messages.success(request, 'Producto creado exitosamente')
             return redirect('productos:product_list') 
     else:
         form = ProductForm()
@@ -102,19 +98,19 @@ def create_product(request):
     return render(request, 'productos/product_form.html', {'form': form})
 
 
-# Class-Based View para detalles del producto (CORREGIDA)
+# ========== DETALLE DEL PRODUCTO ==========
 class ProductDetailView(DetailView):
     model = Producto
     template_name = 'productos/product_detail.html' 
-    context_object_name = 'producto'  # ← Cambia a 'producto'
+    context_object_name = 'producto'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        if self.request.user.is_authenticated:
+        if self.request.user.is_authenticated and Favorite:
             context['is_favorited'] = Favorite.objects.filter(
                 user=self.request.user,
-                product=self.get_object()  # ← Usa self.get_object() en lugar de self.object
+                product=self.get_object()
             ).exists()
         else:
             context['is_favorited'] = False
@@ -122,10 +118,7 @@ class ProductDetailView(DetailView):
         return context
 
 
-# VISTAS DEL CARRITO
-from django.contrib import messages
-from django.shortcuts import get_object_or_404
-
+# ========== VISTAS DEL CARRITO ==========
 @login_required
 def ver_carrito(request):
     carrito, created = Carrito.objects.get_or_create(usuario=request.user)
@@ -134,6 +127,7 @@ def ver_carrito(request):
         'items': carrito.items.all()
     }
     return render(request, 'productos/ver_carrito.html', context)
+
 
 @login_required
 def agregar_al_carrito(request, producto_id):
@@ -161,6 +155,7 @@ def agregar_al_carrito(request, producto_id):
     
     return redirect('productos:ver_carrito')
 
+
 @login_required
 def eliminar_del_carrito(request, item_id):
     item = get_object_or_404(ItemCarrito, id=item_id, carrito__usuario=request.user)
@@ -169,12 +164,6 @@ def eliminar_del_carrito(request, item_id):
     messages.success(request, f'{nombre_producto} eliminado del carrito')
     return redirect('productos:ver_carrito')
 
-@login_required
-def vaciar_carrito(request):
-    carrito = get_object_or_404(Carrito, usuario=request.user)
-    carrito.items.all().delete()
-    messages.success(request, 'Carrito vaciado')
-    return redirect('productos:ver_carrito')
 
 @login_required
 def vaciar_carrito(request):
@@ -184,19 +173,16 @@ def vaciar_carrito(request):
     return redirect('productos:ver_carrito')
 
 
-
+# ========== MERCADO PAGO ==========
 @login_required
 def create_preference_cart(request):
     carrito, created = Carrito.objects.get_or_create(usuario=request.user)
 
-    # Si el carrito está vacío
     if not carrito.items.exists():
         return JsonResponse({"error": "El carrito está vacío"}, status=400)
 
-    # Crear items a enviar a Mercado Pago
     items = []
     for item in carrito.items.all():
-        # **IMPORTANTE**: Agregar currency_id para evitar errores de validación de MP
         items.append({
             "title": item.producto.nombre,
             "quantity": item.cantidad,
@@ -204,56 +190,145 @@ def create_preference_cart(request):
             "currency_id": "ARS" 
         })
     
-        
-        url = "https://api.mercadopago.com/checkout/preferences"
+    url = "https://api.mercadopago.com/checkout/preferences"
 
-        headers = {
-        # Usamos f-string para insertar el token
+    headers = {
         "Authorization": f"Bearer {settings.MERCADOPAGO_ACCESS_TOKEN}",
         "Content-Type": "application/json"
     }
 
-        body = {
+    body = {
         "items": items,
         "back_urls": {
-            # Asegúrate que estas URLs estén correctas en tu urls.py
-            "success": settings.SITE_URL("/products/pago-exitoso/"),
-            "failure": settings.SITE_URL("/products/pago-fallido/"),
-            "pending": settings.SITE_URL("/products/pago-pendiente/"),
+            "success": settings.SITE_URL + "/products/pago-exitoso/",
+            "failure": settings.SITE_URL + "/products/pago-fallido/",
+            "pending": settings.SITE_URL + "/products/pago-pendiente/",
         },
         "auto_return": "approved"
-                     }
+    }
 
-        response = requests.post(url, headers=headers, json=body)
+    response = requests.post(url, headers=headers, json=body)
     
-    # Manejo de la Respuesta
     if response.status_code == 201:
         data = response.json()
-        
-        # Muestra el ID de Preferencia en la terminal si es exitoso
         preference_id = data.get("id", "ID no encontrada")
-        print("--------------------------------------------------")
-        print("✅ PREFERENCIA CREADA EXITOSAMENTE.")
-        print("ID de Preferencia:", preference_id)
-        print("--------------------------------------------------")
-        
+        print("✅ PREFERENCIA CREADA:", preference_id)
         return JsonResponse({"init_point": data.get("init_point")})
-    
     else:
-        # Lógica de FALLO (mantenida para debug)
         try:
             error_data = response.json()
         except requests.exceptions.JSONDecodeError:
-            error_data = {"message": response.text or "Respuesta de MP inválida y no-JSON."}
-
-        print("--------------------------------------------------")
-        print(f"🛑 FALLO AL CREAR PREFERENCIA. STATUS CODE: {response.status_code}")
-        print("DETALLE DE MERCADO PAGO:", error_data)
-        print("--------------------------------------------------")
+            error_data = {"message": response.text or "Error en MP"}
         
-        status_code = response.status_code if response.status_code >= 400 else 400
-        
+        print(f"🛑 ERROR MP: {response.status_code}", error_data)
         return JsonResponse({
             "error": "No se pudo generar el link de pago",
-            "detail": error_data.get("message", "Error desconocido o token inválido.")
-        }, status=status_code)
+            "detail": error_data.get("message", "Error desconocido")
+        }, status=response.status_code if response.status_code >= 400 else 400)
+
+
+# ========== PAGO EXITOSO (CREA EL PEDIDO) ==========
+@login_required
+def pago_exitoso(request):
+    """
+    Vista que se muestra después de un pago exitoso.
+    Crea el pedido y vacía el carrito.
+    """
+    # Obtener datos de Mercado Pago
+    payment_id = request.GET.get('payment_id')
+    status = request.GET.get('status')
+    preference_id = request.GET.get('preference_id')
+    
+    # Obtener el carrito
+    try:
+        carrito = Carrito.objects.get(usuario=request.user)
+    except Carrito.DoesNotExist:
+        messages.error(request, 'No se encontró un carrito')
+        return redirect('home')
+    
+    # Verificar que el carrito no esté vacío
+    if not carrito.items.exists():
+        messages.warning(request, 'El carrito está vacío')
+        return redirect('productos:product_list')
+    
+    # Crear el pedido
+    pedido = Pedido.objects.create(
+        usuario=request.user,
+        nombre_completo=f"{request.user.first_name} {request.user.last_name}" or request.user.username,
+        email=request.user.email,
+        telefono="",
+        direccion="Por definir",
+        subtotal=carrito.calcular_total(),
+        descuento=0,
+        total=carrito.calcular_total(),
+        preference_id=preference_id,
+        payment_id=payment_id,
+        estado='pagado' if status == 'approved' else 'pendiente'
+    )
+    
+    # Crear los items del pedido
+    for item in carrito.items.all():
+        ItemPedido.objects.create(
+            pedido=pedido,
+            producto=item.producto,
+            nombre_producto=item.producto.nombre,
+            precio_unitario=item.producto.precio,
+            cantidad=item.cantidad,
+            subtotal=item.producto.precio * item.cantidad
+        )
+        
+        # Descontar del stock
+        if item.producto.stock >= item.cantidad:
+            item.producto.stock -= item.cantidad
+            item.producto.save()
+    
+    # Vaciar el carrito
+    carrito.items.all().delete()
+    
+    messages.success(request, f'¡Compra exitosa! Tu número de pedido es: {pedido.numero_pedido}')
+    
+    # Redirigir al ticket
+    return redirect('productos:ver_ticket', pedido_id=pedido.id)
+
+
+# ========== VER TICKET ==========
+@login_required
+def ver_ticket(request, pedido_id):
+    """
+    Muestra el ticket del pedido para imprimir.
+    """
+    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+    
+    context = {
+        'pedido': pedido,
+    }
+    
+    return render(request, 'productos/ticket.html', context)
+
+
+# ========== MIS PEDIDOS ==========
+@login_required
+def mis_pedidos(request):
+    """
+    Lista todos los pedidos del usuario.
+    """
+    pedidos = Pedido.objects.filter(usuario=request.user)
+    
+    context = {
+        'pedidos': pedidos,
+    }
+    
+    return render(request, 'productos/mis_pedidos.html', context)
+
+
+# ========== VISTAS DE PAGO (FALLIDO/PENDIENTE) ==========
+@login_required
+def pago_fallido(request):
+    messages.error(request, 'El pago no pudo ser procesado. Intentá nuevamente.')
+    return redirect('productos:ver_carrito')
+
+
+@login_required
+def pago_pendiente(request):
+    messages.warning(request, 'El pago está pendiente de confirmación.')
+    return redirect('productos:ver_carrito')

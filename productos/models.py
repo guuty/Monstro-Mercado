@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
+import uuid
 
+# ========== MODELO PRODUCTO (DEBE IR PRIMERO) ==========
 class Producto(models.Model):
     # Categorías de supermercado
     CATEGORY_CHOICES = [
@@ -43,7 +46,9 @@ class Producto(models.Model):
     
     class Meta:
         verbose_name_plural = "Productos"
-    
+
+
+# ========== MODELO CARRITO ==========
 class Carrito(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='carrito')
     creado = models.DateTimeField(auto_now_add=True)
@@ -52,10 +57,12 @@ class Carrito(models.Model):
     def __str__(self):
         return f"Carrito de {self.usuario.username}"
     
-    def total(self):
+    def calcular_total(self):
+        """Calcula el total del carrito"""
         return sum(item.subtotal() for item in self.items.all())
     
     def cantidad_items(self):
+        """Cuenta la cantidad total de items"""
         return sum(item.cantidad for item in self.items.all())
     
     class Meta:
@@ -78,10 +85,70 @@ class ItemCarrito(models.Model):
         verbose_name_plural = "Items del Carrito"
         unique_together = ('carrito', 'producto')
 
-class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Producto, on_delete=models.CASCADE)  # Se llama 'product'
-    created_at = models.DateTimeField(auto_now_add=True)
+
+# ========== MODELOS DE PEDIDOS ==========
+class Pedido(models.Model):
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente'),
+        ('pagado', 'Pagado'),
+        ('enviado', 'Enviado'),
+        ('entregado', 'Entregado'),
+        ('cancelado', 'Cancelado'),
+    ]
+    
+    numero_pedido = models.CharField(max_length=20, unique=True, editable=False)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='pedidos')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    
+    # Datos de contacto (guardados en el momento de la compra)
+    nombre_completo = models.CharField(max_length=200)
+    email = models.EmailField()
+    telefono = models.CharField(max_length=20, blank=True)
+    direccion = models.TextField()
+    
+    # Totales
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+    descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Mercado Pago
+    preference_id = models.CharField(max_length=100, blank=True, null=True)
+    payment_id = models.CharField(max_length=100, blank=True, null=True)
     
     class Meta:
-        unique_together = ('user', 'product')
+        ordering = ['-fecha_creacion']
+        verbose_name = 'Pedido'
+        verbose_name_plural = 'Pedidos'
+    
+    def save(self, *args, **kwargs):
+        if not self.numero_pedido:
+            # Generar número de pedido único
+            self.numero_pedido = f"PED-{uuid.uuid4().hex[:8].upper()}"
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"Pedido {self.numero_pedido} - {self.usuario.username}"
+
+
+class ItemPedido(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='items')
+    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
+    
+    # Guardamos los datos del producto en el momento de la compra
+    nombre_producto = models.CharField(max_length=200)
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    cantidad = models.PositiveIntegerField()
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    def save(self, *args, **kwargs):
+        # Calcular subtotal automáticamente
+        self.subtotal = self.precio_unitario * self.cantidad
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.cantidad}x {self.nombre_producto}"
+    
+    class Meta:
+        verbose_name = 'Item de Pedido'
+        verbose_name_plural = 'Items de Pedidos'

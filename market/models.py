@@ -17,7 +17,6 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
     CONDITION_CHOICES = [
         ('new', 'Nuevo'),
         ('used', 'Usado'),
@@ -28,21 +27,29 @@ class Product(models.Model):
         default='new'
     )
     
-    # Campo para Categoría
+    # Campo para Categoría - ACTUALIZADO PARA SUPERMERCADO
     CATEGORY_CHOICES = [
-        ('electronica', 'Electrónica'),
-        ('ropa', 'Ropa'),
-        ('deportes', 'Deportes'),
-        ('hogar', 'Hogar'),
-        ('accesorios', 'Accesorios'), # Añade más categorías aquí
+        ('bebidas', 'Bebidas'),
+        ('almacen', 'Almacén'),
+        ('frescos', 'Frescos'),
+        ('lacteos', 'Lácteos'),
+        ('carnes', 'Carnes y Pescados'),
+        ('verduras', 'Frutas y Verduras'),
+        ('panaderia', 'Panadería'),
+        ('limpieza', 'Limpieza'),
+        ('perfumeria', 'Perfumería'),
+        ('congelados', 'Congelados'),
+        ('snacks', 'Snacks y Golosinas'),
+        ('pastas', 'Pastas'),
     ]
     category = models.CharField(
         max_length=20,
         choices=CATEGORY_CHOICES,
-        default='electronica'
+        default='almacen'
     )
+    
     def __str__(self):
         return self.title
 
     def is_available(self):
-        return self.active and self
+        return self.active and self.stock > 0

@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import models
-# Ajusta la importación de Product según dónde esté (ej: from productos.models import Product)
-from market.models import Product  # Asumiendo que Product está en market.models
+from productos.models import Producto
 
 class Favorite(models.Model):
     user = models.ForeignKey(
@@ -10,16 +9,17 @@ class Favorite(models.Model):
         related_name='favorites'
     )
     product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE
+        Producto,
+        on_delete=models.CASCADE,
+        related_name='favorited_by'
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # Esto asegura que un usuario solo pueda marcar el mismo producto una vez
         unique_together = ('user', 'product')
         verbose_name = 'Favorito'
         verbose_name_plural = 'Favoritos'
+        ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.user.username} likes {self.product.title}"
+        return f"{self.user.username} ❤️ {self.product.nombre}"

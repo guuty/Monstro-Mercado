@@ -190,6 +190,153 @@
             position: relative;
             z-index: 1;
         }
+
+        /* Footer Links */
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            transition: color 0.3s ease, padding-left 0.3s ease;
+            display: inline-block;
+        }
+
+        .footer-links a:hover {
+            color: #E4002B !important;
+            padding-left: 5px;
+        }
+
+        /* Social Icons */
+        .social-icon {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-icon:hover {
+            background: #E4002B;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Payment Badges */
+        .payment-badge {
+            background: white;
+            color: #333;
+            padding: 0.5rem 0.8rem;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .payment-badge:hover {
+            transform: scale(1.1);
+        }
+
+        /* Footer responsivo */
+        @media (max-width: 768px) {
+            footer .col-md-3 {
+                margin-bottom: 2rem;
+            }
+        }
+
+        /* ========== ESTILOS DEL BUSCADOR CON VOZ ========== */
+        .search-input-custom {
+            border: 2px solid #e0e0e0;
+            border-radius: 25px 0 0 25px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input-custom:focus {
+            border-color: var(--river-red);
+            box-shadow: 0 0 0 0.2rem rgba(228, 0, 43, 0.15);
+            outline: none;
+        }
+
+        .btn-search-custom {
+            background: var(--river-red);
+            color: white;
+            border: 2px solid var(--river-red);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+        }
+
+        .btn-search-custom:hover {
+            background: var(--river-red-dark);
+            border-color: var(--river-red-dark);
+            color: white;
+        }
+
+        .btn-voice-custom {
+            background: white;
+            color: var(--river-red);
+            border: 2px solid var(--river-red);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0 25px 25px 0;
+            transition: all 0.3s ease;
+        }
+
+        .btn-voice-custom:hover {
+            background: var(--river-red);
+            color: white;
+            border-color: var(--river-red);
+        }
+
+        .btn-voice-custom.listening {
+            background: var(--river-red);
+            color: white;
+            animation: pulse-mic 1s infinite;
+        }
+
+        @keyframes pulse-mic {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(228, 0, 43, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(228, 0, 43, 0);
+            }
+        }
+
+        /* Iconos de favoritos y carrito */
+        .nav-icon-btn {
+            position: relative;
+            padding: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        .nav-icon-btn:hover {
+            transform: translateY(-2px);
+            color: var(--river-red);
+        }
+
+        .nav-icon-btn .badge {
+            font-size: 0.65rem;
+            padding: 0.25rem 0.45rem;
+            min-width: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .search-container-voice {
+                margin: 1rem 0;
+                max-width: 100% !important;
+            }
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -207,8 +354,32 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Links de navegación centrados -->
-                <ul class="navbar-nav mx-auto mb-0">
+                
+                <!-- ========== BUSCADOR CON VOZ ========== -->
+                <div class="mx-auto search-container-voice" style="max-width: 500px; width: 100%;">
+                    <form method="GET" action="{% url 'productos:product_list' %}" class="d-flex gap-2" id="searchForm">
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                name="q" 
+                                id="searchInput"
+                                class="form-control search-input-custom" 
+                                placeholder="Buscar productos, marcas, categorías..." 
+                                value="{{ request.GET.q|default:'' }}"
+                            >
+                            <button type="submit" class="btn btn-search-custom" title="Buscar">
+                                <i class="bi bi-search"></i>
+                            </button>
+                            <button type="button" class="btn btn-voice-custom" id="voiceBtn" title="Buscar por voz">
+                                <i class="bi bi-mic-fill" id="micIcon"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- ========== FIN BUSCADOR ========== -->
+
+                <!-- Links de navegación -->
+                <ul class="navbar-nav ms-3 mb-0">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">
                             <i class="bi bi-house-door me-1"></i>Inicio
@@ -222,8 +393,24 @@
                 </ul>
 
                 <!-- Sección derecha con usuario/login -->
-                <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3 ms-3">
                     {% if user.is_authenticated %}
+                        <!-- Favoritos con badge -->
+                        <a href="{% url 'favoritos:list' %}" class="position-relative nav-icon-btn" title="Favoritos">
+                            <i class="bi bi-heart-fill text-danger fs-5"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="favoritosBadge">
+                                {{ favoritos_count|default:0 }}
+                            </span>
+                        </a>
+
+                        <!-- Carrito con badge -->
+                        <a href="{% url 'productos:ver_carrito' %}" class="position-relative nav-icon-btn" title="Carrito">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="carritoBadge">
+                                0
+                            </span>
+                        </a>
+
                         <!-- Usuario autenticado -->
                         <div class="dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" style="text-decoration: none;">
@@ -268,6 +455,10 @@
                                 <li><a class="dropdown-item" href="{% url 'productos:ver_carrito' %}">
                                     <i class="bi bi-cart3 me-2"></i>Ver Carrito
                                 </a></li>
+                                <li><a class="dropdown-item" href="{% url 'productos:mis_pedidos' %}">
+                                    <i class="bi bi-bag-check me-2"></i>Mis Pedidos
+                                </a></li>
+
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="post" action="{% url 'account_logout' %}" class="px-3">
@@ -297,76 +488,276 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- FOOTER COMPLETO -->
+    <footer class="bg-dark text-white mt-5 pt-5 pb-3">
+        <div class="container">
+            <div class="row g-4">
+                
+                <!-- NOSOTROS -->
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-4 text-danger">NOSOTROS</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#" class="text-white-50">Código de ética</a></li>
+                        <li><a href="#" class="text-white-50">Alquileres en Locales</a></li>
+                        <li><a href="#" class="text-white-50">Historia</a></li>
+                        <li><a href="#" class="text-white-50">Trabajá con nosotros</a></li>
+                        <li><a href="#" class="text-white-50">Responsabilidad Social</a></li>
+                    </ul>
+                </div>
+
+                <!-- TIENDA ONLINE -->
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-4 text-danger">TIENDA ONLINE</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="{% url 'productos:product_list' %}" class="text-white-50">Ver Productos</a></li>
+                        <li><a href="{% url 'productos:product_list' %}?orderby=-creado" class="text-white-50">Hot Sale</a></li>
+                        <li><a href="#" class="text-white-50">Cambios y Devoluciones</a></li>
+                        <li><a href="#" class="text-white-50">Descuentos y Financiación</a></li>
+                        <li><a href="#" class="text-white-50">Métodos de Pago</a></li>
+                        <li><a href="#" class="text-white-50">Métodos de Entrega</a></li>
+                        <li><a href="#" class="text-white-50">Legales</a></li>
+                        <li><a href="#" class="text-white-50">Ofertas y Catálogos</a></li>
+                    </ul>
+                </div>
+
+                <!-- AYUDA -->
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-4 text-danger">AYUDA</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#" class="text-white-50">Buscá tu Tienda</a></li>
+                        <li><a href="#" class="text-white-50">Como comprar</a></li>
+                        <li><a href="#" class="text-white-50">Contacto</a></li>
+                        <li><a href="#" class="text-white-50">Limpiar sesión</a></li>
+                        <li><a href="#" class="text-white-50">Preguntas Frecuentes</a></li>
+                        <li><a href="#" class="text-white-50">Validación Biométrica</a></li>
+                    </ul>
+                </div>
+
+                <!-- CONTACTO Y REDES SOCIALES -->
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-4 text-danger">SEGUINOS</h5>
+                    <div class="d-flex gap-3 mb-4">
+                        <a href="https://facebook.com" target="_blank" class="social-icon">
+                            <i class="fab fa-facebook fs-4"></i>
+                        </a>
+                        <a href="https://instagram.com" target="_blank" class="social-icon">
+                            <i class="fab fa-instagram fs-4"></i>
+                        </a>
+                        <a href="https://twitter.com" target="_blank" class="social-icon">
+                            <i class="fab fa-twitter fs-4"></i>
+                        </a>
+                        <a href="https://youtube.com" target="_blank" class="social-icon">
+                            <i class="fab fa-youtube fs-4"></i>
+                        </a>
+                        <a href="https://tiktok.com" target="_blank" class="social-icon">
+                            <i class="fab fa-tiktok fs-4"></i>
+                        </a>
+                    </div>
+
+                    <h6 class="fw-bold mb-3">MEDIOS DE PAGO</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <div class="payment-badge"><i class="fab fa-cc-visa"></i></div>
+                        <div class="payment-badge"><i class="fab fa-cc-mastercard"></i></div>
+                        <div class="payment-badge"><i class="fab fa-cc-amex"></i></div>
+                        <div class="payment-badge"><i class="fas fa-money-bill-wave"></i></div>
+                    </div>
+
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-headset me-2"></i>ATENCIÓN AL CLIENTE
+                    </h6>
+                    <p class="text-white-50 mb-1 fw-bold">0810-999-58626</p>
+                    <p class="text-white-50 mb-1">0800-777-7777</p>
+                    <p class="text-white-50 small">Lunes a Domingos de 8 a 22 hs</p>
+                </div>
+            </div>
+
+            <!-- LINKS LEGALES -->
+            <hr class="my-4 border-secondary">
+            <div class="row">
+                <div class="col-12">
+                    <ul class="list-inline text-center mb-3">
+                        <li class="list-inline-item">
+                            <a href="#" class="text-white-50 small">Términos y Condiciones</a>
+                        </li>
+                        <li class="list-inline-item">|</li>
+                        <li class="list-inline-item">
+                            <a href="#" class="text-white-50 small">Seguridad y Privacidad</a>
+                        </li>
+                        <li class="list-inline-item">|</li>
+                        <li class="list-inline-item">
+                            <a href="#" class="text-white-50 small">Código de ética</a>
+                        </li>
+                        <li class="list-inline-item">|</li>
+                        <li class="list-inline-item">
+                            <a href="#" class="text-white-50 small">Política de Privacidad de Datos</a>
+                        </li>
+                        <li class="list-inline-item">|</li>
+                        <li class="list-inline-item">
+                            <a href="#" class="text-white-50 small">Defensa del consumidor</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- COPYRIGHT -->
+            <hr class="my-3 border-secondary">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="text-white-50 small mb-0">
+                        Copyright © 2025 MONSTROMART - Todos los derechos reservados
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="text-white-50 small mb-0">
+                        Powered by <span class="text-danger fw-bold">Django & Bootstrap</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     {% block extra_js %}{% endblock %}
 
+    <!-- ========== SCRIPT DE RECONOCIMIENTO DE VOZ ========== -->
     <script>
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // Función auxiliar para obtener el CSRF token, necesaria para las peticiones POST de Django
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+    document.addEventListener('DOMContentLoaded', function() {
+        const voiceBtn = document.getElementById('voiceBtn');
+        const searchInput = document.getElementById('searchInput');
+        const searchForm = document.getElementById('searchForm');
+        const micIcon = document.getElementById('micIcon');
+
+        // Verificar soporte de reconocimiento de voz
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+
+            recognition.lang = 'es-AR'; // Español argentino
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            voiceBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                recognition.start();
+                voiceBtn.classList.add('listening');
+                micIcon.classList.remove('bi-mic-fill');
+                micIcon.classList.add('bi-mic-mute-fill');
+            });
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                searchInput.value = transcript;
+                
+                // Enviar búsqueda automáticamente
+                setTimeout(() => {
+                    searchForm.submit();
+                }, 500);
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Error en reconocimiento de voz:', event.error);
+                
+                let errorMsg = 'Error al usar el micrófono.';
+                if (event.error === 'not-allowed') {
+                    errorMsg = 'Permiso de micrófono denegado. Habilitalo en la configuración del navegador.';
+                } else if (event.error === 'no-speech') {
+                    errorMsg = 'No se detectó voz. Intentá de nuevo.';
                 }
-            }
+                
+                // Mostrar alerta de Bootstrap
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-warning alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-5';
+                alertDiv.style.zIndex = '9999';
+                alertDiv.innerHTML = `
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>${errorMsg}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                setTimeout(() => alertDiv.remove(), 5000);
+                
+                voiceBtn.classList.remove('listening');
+                micIcon.classList.remove('bi-mic-mute-fill');
+                micIcon.classList.add('bi-mic-fill');
+            };
+
+            recognition.onend = function() {
+                voiceBtn.classList.remove('listening');
+                micIcon.classList.remove('bi-mic-mute-fill');
+                micIcon.classList.add('bi-mic-fill');
+            };
+
+        } else {
+            // Si no hay soporte, ocultar botón
+            voiceBtn.style.display = 'none';
+            console.warn('Reconocimiento de voz no soportado en este navegador. Usá Chrome o Edge.');
         }
-        return cookieValue;
-    }
 
-    // Escucha el evento clic en cualquier botón con la clase .favorite-btn
-    document.querySelectorAll('.favorite-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const toggleUrl = this.dataset.url;
-            const icon = this.querySelector('i');
-            
-            // Requerir autenticación
-            if (!{{ user.is_authenticated|yesno:"true,false" }}) {
-                // Si el usuario no está logueado, redirigir a login (ajusta la URL si es necesario)
-                window.location.href = "{% url 'account_login' %}"; 
-                return;
-            }
-
-            fetch(toggleUrl, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Actualizar el icono basado en la respuesta del servidor
-                    if (data.is_favorited) {
-                        icon.classList.remove('bi-heart');
-                        icon.classList.add('bi-heart-fill');
-                        // Si el botón tiene clase btn-outline, cámbiala a btn-fill
-                        if (button.classList.contains('btn-outline-danger')) {
-                            button.classList.remove('btn-outline-danger');
-                            button.classList.add('btn-danger');
-                        }
-                    } else {
-                        icon.classList.remove('bi-heart-fill');
-                        icon.classList.add('bi-heart');
-                        // Si el botón tiene clase btn-fill, cámbiala a btn-outline
-                        if (button.classList.contains('btn-danger')) {
-                            button.classList.remove('btn-danger');
-                            button.classList.add('btn-outline-danger');
-                        }
+        // Función auxiliar para obtener el CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
                     }
                 }
-            })
-            .catch(error => console.error('Error al alternar favorito:', error));
+            }
+            return cookieValue;
+        }
+
+        // Escucha el evento clic en cualquier botón con la clase .favorite-btn
+        document.querySelectorAll('.favorite-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const toggleUrl = this.dataset.url;
+                const icon = this.querySelector('i');
+                
+                // Requerir autenticación
+                if (!{{ user.is_authenticated|yesno:"true,false" }}) {
+                    // Si el usuario no está logueado, redirigir a login
+                    window.location.href = "{% url 'account_login' %}"; 
+                    return;
+                }
+
+                fetch(toggleUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Actualizar el icono basado en la respuesta del servidor
+                        if (data.is_favorited) {
+                            icon.classList.remove('bi-heart');
+                            icon.classList.add('bi-heart-fill');
+                            // Si el botón tiene clase btn-outline, cámbiala a btn-fill
+                            if (button.classList.contains('btn-outline-danger')) {
+                                button.classList.remove('btn-outline-danger');
+                                button.classList.add('btn-danger');
+                            }
+                        } else {
+                            icon.classList.remove('bi-heart-fill');
+                            icon.classList.add('bi-heart');
+                            // Si el botón tiene clase btn-fill, cámbiala a btn-outline
+                            if (button.classList.contains('btn-danger')) {
+                                button.classList.remove('btn-danger');
+                                button.classList.add('btn-outline-danger');
+                            }
+                        }
+                    }
+                })
+                .catch(error => console.error('Error al alternar favorito:', error));
+            });
         });
     });
-});
     </script>
 </body>
 </html>
