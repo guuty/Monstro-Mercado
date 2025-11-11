@@ -15,4 +15,11 @@ urlpatterns = [
     path('carrito/agregar/<int:producto_id>/', views.agregar_al_carrito, name='agregar_al_carrito'),
     path('carrito/eliminar/<int:item_id>/', views.eliminar_del_carrito, name='eliminar_del_carrito'),
     path('carrito/vaciar/', views.vaciar_carrito, name='vaciar_carrito'),
+
+    #path("pago/<int:product_id>/", views.create_preference, name="crear-preferencia"),
+    
+    # Ruta de pago para el CARRITO (la que conecta con tu botón "Proceder al Pago")
+    path("pago-carrito/", views.create_preference_cart, name="crear_preferencia_mp"), 
+    # NOTA: Cambié el nombre a 'crear_preferencia_mp' para que coincida con el JS que te di.
+    # Si prefieres 'crear-preferencia-carrito', usa ese nombre, pero actualiza el JS.
 ]

@@ -8,8 +8,8 @@ class ProductForm(forms.ModelForm):
         model = Producto
         
         fields = [
-            'nombre', 'descripcion', 'precio', 'imagen', 'stock', 'marca',
-            'category', 'condition'
+            'nombre', 'descripcion', 'precio', 'imagen', 'stock', 'marca',  # <-- CORREGIDO
+             'category', 'condition'
         ] 
         
         labels = {
