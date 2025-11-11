@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-set -o errexit  # hace que el script se detenga si hay errores
+set -o errexit
 
-# Instalar dependencias
+echo "🚀 Iniciando build para Render..."
+
+pip install --upgrade pip
 pip install -r requirements.txt
 
-# Aplicar migraciones
+echo "📁 Recolectando archivos estáticos..."
+python manage.py collectstatic --no-input
+
+echo "🗄️  Aplicando migraciones..."
 python manage.py migrate
 
-# Recolectar archivos estáticos (para que Render los sirva correctamente)
-python manage.py collectstatic --noinput
+echo "✅ Build completado!"

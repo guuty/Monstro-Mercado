@@ -31,7 +31,7 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-default-key-change-this'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ["RENDER_EXTERNAL_HOSTNAME"]
+ALLOWED_HOSTS = []
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
@@ -163,6 +163,7 @@ DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
         conn_max_age=600,
+        conn_health_checks=True,
     )
 }
 
@@ -192,10 +193,18 @@ USE_TZ = True
 STATIC_URL = "/static/"
 if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 STATICFILES_DIRS= [
-    BASE_DIR / "static"
+    os.path.join(BASE_DIR, 'static'),
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
