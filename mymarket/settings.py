@@ -122,8 +122,6 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 SOCIALACCOUNT_LOGIN_ON_GET = True
-<<<<<<< HEAD
-=======
 #SOCIALACCOUNT_PROVIDERS = {
 #      "google": {
 #     "APP": {
@@ -139,7 +137,6 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 MERCADOPAGO_ACCESS_TOKEN = os.getenv("APP_USR-2094238887770776-111012-faf9774d143d3702c8267324814794cc-2979372988")
 sdk = mercadopago.SDK("APP_USR-2094238887770776-111012-faf9774d143d3702c8267324814794cc-2979372988")
 
->>>>>>> 28e5e4fc9ed177ccf23466f11568d6f3cdceda74
 
 TEMPLATES = [
     {
@@ -197,11 +194,7 @@ if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-<<<<<<< HEAD
-STATICFILES_DIRS = [
-=======
 STATICFILES_DIRS= [
->>>>>>> 28e5e4fc9ed177ccf23466f11568d6f3cdceda74
     BASE_DIR / "static"
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -215,11 +208,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Formato de números
 USE_THOUSAND_SEPARATOR = True
 THOUSAND_SEPARATOR = '.'
-<<<<<<< HEAD
-DECIMAL_SEPARATOR = ','
-=======
 DECIMAL_SEPARATOR = ','
 
 SITE_URL = 'http://127.0.0.1:8000'
 
->>>>>>> 28e5e4fc9ed177ccf23466f11568d6f3cdceda74
