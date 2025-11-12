@@ -29,36 +29,46 @@
 
 Sigue estos pasos para correr el proyecto en tu entorno local:
 
-bash
-# 1. Clonar el repositorio
+
+### 1. Clonar el repositorio
+```bash
 git clone https://github.com/guuty/Monstro-Mercado.git
-
-# 2. Ingresar al directorio del proyecto
+```
+### 2. Ingresar al directorio del proyecto
+```bash
 cd Monstro-Mercado
-
-# 3. Crear un entorno virtual
+```
+### 3. Crear un entorno virtual
+```bash
 python -m venv venv
-
-# 4. Activar el entorno virtual
+```
+### 4. Activar el entorno virtual
+```bash
 # En Windows:
 venv\Scripts\activate
+```
+```bash
 # En Linux/Mac:
 source venv/bin/activate
+```
 
-# 5. Instalar las dependencias
+### 5. Instalar las dependencias
+```bash
 pip install -r requirements.txt
-
-# 6. Ejecutar migraciones
+```
+### 6. Ejecutar migraciones
 python manage.py migrate
-
+```bash
 # 7. (Opcional) Cargar datos iniciales
 python init_db.py
-
-# 8. Ejecutar el servidor
+```
+### 8. Ejecutar el servidor
+```bash
 python manage.py runserver
+```
 
 ## 🗃️ Estructura del proyecto
-
+```bash
 # Monstro-Mercado/
 # │
 # ├── core/ # Configuración base del sitio
@@ -77,6 +87,7 @@ python manage.py runserver
 # ├── manage.py # Comando principal de Django
 # ├── requirements.txt # Dependencias del proyecto
 # └── build.sh # Script de despliegue
+```
 
 ## 👥 Autores
 
